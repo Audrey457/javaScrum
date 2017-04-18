@@ -15,16 +15,16 @@ import javax.json.JsonWriter;
 
 public class JsonTools {
 	
-	private ArrayPosts allPosts;
+	private ArrayTopics allPosts;
 	private ArrayMessages allMessages;
 	
 	public JsonTools() {
 		super();
-		allPosts = new ArrayPosts();
+		allPosts = new ArrayTopics();
 		allMessages = new ArrayMessages();
 	}
 	
-	public ArrayPosts getAllPosts(){
+	public ArrayTopics getAllPosts(){
 		return allPosts;
 	}
 	
@@ -59,10 +59,10 @@ public class JsonTools {
 	//a post = id, title, url, nb_replies
 	public void setAllPosts(JsonArray jsa){
 		JsonObject jso;
-		Post p;
+		Topic p;
 		for(int i = 0; i < jsa.size(); i++){
 			jso = jsa.getJsonObject(i);
-			p = new Post(getPostIdFromUrl(jso), jso.getString("title"), jso.getString("url"), jso.getInt("nb_replies"));
+			p = new Topic(getPostIdFromUrl(jso), jso.getString("title"), jso.getString("url"));
 			allPosts.add(p);
 		}
 	}

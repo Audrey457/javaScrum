@@ -31,11 +31,6 @@ public class TopicElement {
 	}
 	
 	public int getTopicNbReplies(){
-//		Element nbRepliesNode = topicElement.select(".forum-list-item-replies").get(0);
-//		String nbRepliesString = nbRepliesNode.toString().replaceAll("<d.*[\\s\\S]*an>", "");
-//		nbRepliesString = nbRepliesString.trim();
-//		nbRepliesString = nbRepliesString.replaceAll("[\\s]*</div>", "");
-//		return Integer.parseInt(nbRepliesString);
 		return Integer.parseInt(topicElement.select(".forum-list-item-replies").get(0).text().replaceAll("Replies ", ""));
 	}
 }

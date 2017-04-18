@@ -7,7 +7,7 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
-public class ArrayPosts extends ArrayList<Post> {
+public class ArrayTopics extends ArrayList<Topic> {
 
 	/**
 	 * As recommended by the documentation for java.io.Serializable (ArrayList
@@ -21,12 +21,12 @@ public class ArrayPosts extends ArrayList<Post> {
 	 * @return an instance of JsonArray
 	 */
 	public JsonArray toJsonArray() {
-		ArrayPosts temp = this;
+		ArrayTopics temp = this;
 		JsonArray jsa = null;
 		JsonArrayBuilder jsab = Json.createArrayBuilder();
 		JsonObject jso;
-		for (Post p : temp) {
-			jso = p.toJsonPost();
+		for (Topic p : temp) {
+			jso = p.toJsonTopic();
 			jsab.add(jso);
 		}
 		jsa = jsab.build();

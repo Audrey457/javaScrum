@@ -1,6 +1,5 @@
 package crawler;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,18 +14,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import edit_json_files.ArrayMessages;
-import edit_json_files.ArrayPosts;
+import edit_json_files.ArrayTopics;
 import edit_json_files.Message;
-import edit_json_files.Post;
+import edit_json_files.Topic;
 
 public class CrawlerApp {
 	
 	ArrayMessages allMessage;
-	ArrayPosts allPosts;
+	ArrayTopics allPosts;
 	
 	public CrawlerApp(){
 		allMessage = new ArrayMessages();
-		allPosts = new ArrayPosts();
+		allPosts = new ArrayTopics();
 	}
 	
 	public void visitAllPages(String url) throws IOException{
@@ -55,11 +54,11 @@ public class CrawlerApp {
 		TopicElement topic;
 		String topicUrl;
 		MessageElements messageElements;
-		Post post;
+		Topic post;
 		for(Element e : topicsOnPage){
 			topic = new TopicElement(e);
 			topicUrl = topic.getStringUrl();
-			post = new Post(topic.getTopicId(), topic.getTopicTitle(), topicUrl, topic.getTopicNbReplies());
+			post = new Topic(topic.getTopicId(), topic.getTopicTitle(), topicUrl);
 			allPosts.add(post);
 			smc = new ScrumMessageCrawler(topicUrl);
 			messageElements = new MessageElements(smc.getReplyMessagesNodes(), smc.getTopicMessageNode(), smc.getFkId());
