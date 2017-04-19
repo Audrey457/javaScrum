@@ -56,9 +56,9 @@ public class DemoJdbc {
 		ScrumDataBase sdb = new ScrumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", "");
 		ArrayMessages am = new ArrayMessages();
 		ArrayTopics at = new ArrayTopics();
-		at.add(new Topic(0, "title", "url"));
-		am.add(new Message(Tools.stringDateToDateTimeSql("09:57 pm March 8, 2017"), "msg", 0));
-		am.add(new Message(Tools.stringDateToDateTimeSql("09:57 pm March 8, 2017"), "msg", 1));
+		at.add(new Topic(2, "title", "url"));
+		am.add(new Message(Tools.stringDateToDateTimeSql("09:57 pm March 8, 2017"), "msg", 2));
+		am.add(new Message(Tools.stringDateToDateTimeSql("09:57 am March 8, 2017"), "msg2", 1));
 		
 		MessageTable mt = new MessageTable(sdb, "messages");
 		TopicTable tt = new TopicTable(sdb, "topics");

@@ -1,0 +1,10 @@
+CREATE TABLE messages (
+    `id_msg` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    `date_msg` DATETIME,
+    `msg` VARCHAR(20000) CHARACTER SET utf8,
+	`topic_id` INT UNSIGNED NOT NULL,
+    CONSTRAINT `fk_topics_id`
+		FOREIGN KEY (topic_id)
+		REFERENCES topics(id)
+)
+ENGINE=InnoDB;

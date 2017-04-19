@@ -1,0 +1,6 @@
+CREATE TABLE topics (
+    `title` VARCHAR(221) CHARACTER SET utf8,
+    `url` VARCHAR(121) CHARACTER SET utf8,
+    `id` INT UNSIGNED PRIMARY KEY
+)
+ENGINE=InnoDB;

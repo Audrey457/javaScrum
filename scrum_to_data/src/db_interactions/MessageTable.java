@@ -17,7 +17,7 @@ public class MessageTable {
 	
 	public void insertMessage(Message message) throws SQLException{
 		String insert = "INSERT INTO " + tableName 
-				+" (date_msg, msg, id) "
+				+" (date_msg, msg, topic_id) "
 				+ " VALUES (?, ?, ?)";
 		PreparedStatement ps = sdb.getConnection().prepareStatement(insert);
 		ps.setString(1,  message.getDate_message());
