@@ -103,8 +103,8 @@ public class CrawlerApp {
 						if(topicTable.getNbReplies(topic) != nbReplies){
 							topicTable.updateNbReplies(topic_id, nbReplies);
 						}
-						goToNextTopic = updateMessages(messageElements);
 						System.out.println("Topic num: " + topic_id + " is in database");
+						goToNextTopic = updateMessages(messageElements);
 					}
 					else{
 						System.out.println("Topic num: " + topic_id + " is not in database");
@@ -141,7 +141,6 @@ public class CrawlerApp {
 	public boolean updateMessages(MessageElements messageElements) throws SQLException{
 		int fkId = messageElements.getFkId();
 		MessageElement messageElement = new MessageElement(messageElements.remove(messageElements.size() - 1), fkId);
-		System.out.println(messageElement.getMessage());
 		String date = Tools.stringDateToDateTimeSql(messageElement.getDateMessage());
 		date += ".0";
 		MessageTable messageTable = new MessageTable(sdb, "messages");
@@ -333,7 +332,7 @@ public class CrawlerApp {
 	}
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
-		CrawlerApp ca = new CrawlerApp(new ScrumDataBase("jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", "root", ""));
+		CrawlerApp ca = new CrawlerApp(new ScrumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", ""));
 		ca.basicUpdate();
 		
 	}
