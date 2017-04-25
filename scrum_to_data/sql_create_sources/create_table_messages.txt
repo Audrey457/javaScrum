@@ -3,8 +3,12 @@ CREATE TABLE messages (
     `date_msg` DATETIME,
     `msg` VARCHAR(20000) CHARACTER SET utf8,
 	`topic_id` INT UNSIGNED NOT NULL,
+	`author_id` INT NOT NULL,
     CONSTRAINT `fk_topics_id`
 		FOREIGN KEY (topic_id)
-		REFERENCES topics(id)
+		REFERENCES topics(id),
+	CONSTRAINT `fk_author_id`
+		FOREIGN KEY (author_id)
+		REFERENCES authors(author_id)
 )
 ENGINE=InnoDB;

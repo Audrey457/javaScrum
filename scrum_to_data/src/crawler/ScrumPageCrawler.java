@@ -26,7 +26,6 @@ public class ScrumPageCrawler {
 	 */
 	public Elements getTopicsElements(){
 		Elements topicsOnPage = new Elements();
-		//topicsOnPage = this.scrumPage.select(".forum-list-view-item .forum-list-item-title .forum__title > div > a");
 		topicsOnPage = this.scrumPage.select(".forum-list-view-item");
 		return topicsOnPage;
 	}
@@ -34,7 +33,7 @@ public class ScrumPageCrawler {
 	
 	/**
 	 * Get all topics urls from a scrum forum page
-	 * @return a HashSet/<String/>
+	 * @return an ArrayList/<String/>
 	 */
 	public ArrayList<String> getAllTopicsUrl(){
 		ArrayList<String> topicsUrls = new ArrayList<>();

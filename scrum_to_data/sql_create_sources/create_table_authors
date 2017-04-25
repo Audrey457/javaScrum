@@ -1,0 +1,5 @@
+CREATE TABLE authors (
+    `author_id` INT PRIMARY KEY,
+    `login` VARCHAR(200) CHARACTER SET utf8
+)
+ENGINE=InnoDB;

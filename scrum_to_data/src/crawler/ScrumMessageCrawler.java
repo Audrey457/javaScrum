@@ -21,7 +21,7 @@ public class ScrumMessageCrawler {
 	 * @return an instance of Element
 	 */
 	public Element getTopicMessageNode(){
-		Element topicMessage = this.scrumMessagePage.select(".forum-node-topic .forum-node-messages-message").get(0);
+		Element topicMessage = this.scrumMessagePage.select(".forum-node-topic").get(0);
 		return topicMessage;
 	}
 	
@@ -30,7 +30,7 @@ public class ScrumMessageCrawler {
 	 * @return an instance of Elements
 	 */
 	public Elements getReplyMessagesNodes(){
-		Elements replyMessages = this.scrumMessagePage.select(".forum-node-container > .forum-node-reply .forum-node-messages-message");
+		Elements replyMessages = this.scrumMessagePage.select(".forum-node-container > .forum-node-reply");
 		return replyMessages;
 	}
 	

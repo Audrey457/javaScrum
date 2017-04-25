@@ -15,7 +15,6 @@ public class Tools {
 	public static LocalDateTime stringToDate(String toConvert){
 		toConvert = toConvert.replaceAll("am", "AM");
 		toConvert = toConvert.replaceAll("pm", "PM");
-		System.out.println(toConvert);
 		DateTimeFormatter format = DateTimeFormatter
 				.ofPattern("hh:mm a MMMM d, yyyy", Locale.ENGLISH);
 		return LocalDateTime.parse(toConvert, format);

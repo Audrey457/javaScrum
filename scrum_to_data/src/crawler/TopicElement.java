@@ -33,4 +33,12 @@ public class TopicElement {
 	public int getTopicNbReplies(){
 		return Integer.parseInt(topicElement.select(".forum-list-item-replies").get(0).text().replaceAll("Replies ", ""));
 	}
+	
+	public String getTopicType(){
+		return topicElement.select("div.forum-list-item-title > div:nth-child(1)").attr("title");
+	}
+	
+	public boolean isStickyTopic(){
+		return this.getTopicType().equals("Sticky topic");
+	}
 }

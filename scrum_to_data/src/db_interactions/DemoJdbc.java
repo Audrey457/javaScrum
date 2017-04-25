@@ -5,10 +5,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import edit_json_files.ArrayMessages;
-import edit_json_files.ArrayTopics;
-import edit_json_files.Message;
-import edit_json_files.Topic;
+import java_objects.ArrayMessages;
+import java_objects.ArrayTopics;
+import java_objects.Message;
+import java_objects.Topic;
 import some_tools.Tools;
 
 
@@ -53,20 +53,12 @@ public class DemoJdbc {
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
-		ScrumDataBase sdb = new ScrumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", "");
-		ArrayMessages am = new ArrayMessages();
-		ArrayTopics at = new ArrayTopics();
-		at.add(new Topic(2, "title", "url"));
-		am.add(new Message(Tools.stringDateToDateTimeSql("09:57 pm March 8, 2017"), "msg", 2));
-		am.add(new Message(Tools.stringDateToDateTimeSql("09:57 am March 8, 2017"), "msg2", 1));
+		ScrumDataBase sdb = new ScrumDataBase("jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", "root", "");
+		MessageTable messageTable = new MessageTable(sdb, "messages");
 		
-		MessageTable mt = new MessageTable(sdb, "messages");
-		TopicTable tt = new TopicTable(sdb, "topics");
+		System.out.println(messageTable.getLastMessageDate(5303).compareTo("2016-03-12 08:51:00.0"));
+				
 		
-		tt.insertAll(at);
-		mt.insertAll(am);
-		
-
 	}
 
 }
