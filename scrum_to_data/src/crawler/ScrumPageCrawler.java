@@ -13,9 +13,14 @@ public class ScrumPageCrawler {
 	private String url;
 	private Document scrumPage;
 	
-	public ScrumPageCrawler(String url) throws IOException{
+	public ScrumPageCrawler(String url){
 		this.url = url;
-		this.scrumPage = Jsoup.connect(url).get();
+		try{
+			this.scrumPage = Jsoup.connect(url).get();
+		}catch(IOException e){
+			System.out.println("An error occured when trying to construct a ScrumPageCrawler " + 
+					"can not access to this site: " + url + "\n" + e.getMessage());
+		}
 	}
 	
 	

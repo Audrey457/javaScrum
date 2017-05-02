@@ -2,20 +2,26 @@ package crawler;
 
 import org.jsoup.nodes.Element;
 
+/**
+ * Represent an Element (a Node) for a message
+ * @author Audrey Loriette
+ *
+ */
 public class MessageElement {
 	Element messageElement;
 	Element authorElement;
-	int id;
+	int fkId;
 
 	/**
-	 * Constructs a MessageElement with the specified Element
-	 * @param messageElement
+	 * Constructs a MessageElement with the specified Element and the foreign key id = the topic id
+	 * @param messageNode an instance of Element
+	 * @param fkId an integer, the topic id
 	 */
-	public MessageElement(Element messageNode, int id) {
+	public MessageElement(Element messageNode, int fkId) {
 		super();
 		this.messageElement = messageNode.select(".forum-node-messages-message").get(0);
 		this.authorElement = messageNode.select(".forum-node-messages-author").get(0);
-		this.id = id;
+		this.fkId = fkId;
 	}
 	
 	/* (non-Javadoc)
@@ -38,7 +44,7 @@ public class MessageElement {
 	 * @return an int
 	 */
 	public int getfkIdTopic(){
-		return id;
+		return fkId;
 	}
 	
 	/**

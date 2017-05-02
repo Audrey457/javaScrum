@@ -10,6 +10,11 @@ import com.mysql.fabric.xmlrpc.base.Array;
 
 import java_objects.Message;
 
+/**
+ * "Elements" encapsulation + the topic id (foreign key)
+ * @author Audrey Loriette
+ *
+ */
 public class MessageElements{
 	
 	Elements messageElements;
@@ -38,7 +43,6 @@ public class MessageElements{
 	
 	/**
 	 * The id of the related topic (foreign key)
-	 * Should it be static ??
 	 * @return an int
 	 */
 	public int getFkId(){

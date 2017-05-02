@@ -10,9 +10,14 @@ public class ScrumForumCrawler {
 	private Document scrumForum;
 	private String url;
 	
-	public ScrumForumCrawler(String url) throws IOException{
+	public ScrumForumCrawler(String url){
 		this.url = url;
-		this.scrumForum = Jsoup.connect(url).get();
+		try{
+			this.scrumForum = Jsoup.connect(url).get();
+		}catch(IOException e){
+			System.out.println("An error occured when trying to construct a ScrumForumCrawler " + 
+					"can not access to this site: " + url + "\n" + e.getMessage());
+		}
 	}
 	
 	

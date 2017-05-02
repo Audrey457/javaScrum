@@ -1,12 +1,8 @@
 package crawler;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 
@@ -33,50 +29,36 @@ import some_tools.IOSerialTools;
 import some_tools.Tools;
 
 public class CrawlerApp {
-	
+
 	ArrayMessages allMessage;
 	ArrayTopics allPosts;
 	HashSetAuthor allAuthors;
 	ScrumDataBase sdb = null;
-	
-	public CrawlerApp(){
+
+	public CrawlerApp() {
 		allMessage = new ArrayMessages();
 		allPosts = new ArrayTopics();
 		allAuthors = new HashSetAuthor();
 	}
-	
-	public CrawlerApp(ScrumDataBase sdb){
+
+	public CrawlerApp(ScrumDataBase sdb) {
 		this();
 		this.sdb = sdb;
 	}
-	
-	/**
-	 * Method used for the first build of a database, or if it's needed to rebuild it
-	 * @param url the site to crawl
-	 * @throws IOException
-	 */
-	public void visitAllPages(String url) throws IOException{
-		ScrumForumCrawler sfc = new ScrumForumCrawler(url);
-		String nextPageUrl = sfc.getNextPageUrl();
-		visitAllTopics(new ScrumPageCrawler(url));
-		System.out.println("Page : " + url + " visited");
-		if (!nextPageUrl.equals("EOS")){
-			visitAllPages(nextPageUrl);
-		}
-	}
-	
-	public void updateDatabase(String url) throws IOException{
+
+
+	public void updateDatabase(String url) {
 		ScrumForumCrawler sfc = new ScrumForumCrawler(url);
 		String nextPageUrl = sfc.getNextPageUrl();
 		boolean goToNextPage = updateTopics(new ScrumPageCrawler(url));
 		System.out.println("Go to next page = " + goToNextPage);
 		System.out.println("Page : " + url + " visited");
-		if (goToNextPage && !nextPageUrl.equals("EOS")){
+		if (goToNextPage && !nextPageUrl.equals("EOS")) {
 			updateDatabase(nextPageUrl);
 		}
 	}
 	
-	public boolean updateTopics(ScrumPageCrawler spc) throws IOException{
+	public boolean updateTopics(ScrumPageCrawler spc) {
 		Elements topicsOnPage = spc.getTopicsElements();
 		TopicTable topicTable = new TopicTable(sdb, "topics");
 		ScrumMessageCrawler smc;
@@ -87,49 +69,44 @@ public class CrawlerApp {
 		int topic_id;
 		int nbReplies;
 		boolean goToNextTopic = true;
-		
-		while(!(topicsOnPage.isEmpty()) && goToNextTopic){
+
+		while (!(topicsOnPage.isEmpty()) && goToNextTopic) {
 			topicElement = new TopicElement(topicsOnPage.remove(0));
-			if(!topicElement.isStickyTopic()){
+			if (!topicElement.isStickyTopic()) {
 				topicUrl = topicElement.getStringUrl();
 				topic_id = topicElement.getTopicId();
 				nbReplies = topicElement.getTopicNbReplies();
-				topic = new Topic(topic_id, topicElement.getTopicTitle(), 
-						topicUrl, nbReplies);
+				topic = new Topic(topic_id, topicElement.getTopicTitle(), topicUrl, nbReplies);
 				smc = new ScrumMessageCrawler(topicUrl);
-				messageElements = new MessageElements(smc.getReplyMessagesNodes(), smc.getTopicMessageNode(), smc.getFkId());
-				try {
-					if(topicTable.contains(topic)){
-						if(topicTable.getNbReplies(topic) != nbReplies){
-							topicTable.updateNbReplies(topic_id, nbReplies);
-						}
-						System.out.println("Topic num: " + topic_id + " is in database");
-						goToNextTopic = updateMessages(messageElements);
+				messageElements = new MessageElements(smc.getReplyMessagesNodes(), smc.getTopicMessageNode(),
+						smc.getFkId());
+				if (topicTable.contains(topic)) {
+					if (topicTable.getNbReplies(topic) != nbReplies) {
+						topicTable.updateNbReplies(topic_id, nbReplies);
 					}
-					else{
-						System.out.println("Topic num: " + topic_id + " is not in database");
-						this.allPosts.add(topic);
-						updateANewTopic(messageElements);
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
+					System.out.println("Topic num: " + topic_id + " is in database");
+					goToNextTopic = updateMessages(messageElements);
+				} else {
+					System.out.println("Topic num: " + topic_id + " is not in database");
+					this.allPosts.add(topic);
+					updateANewTopic(messageElements);
 				}
 			}
 		}
 		return goToNextTopic;
 	}
-	
-	public void updateANewTopic(MessageElements messagesElements){
+
+	public void updateANewTopic(MessageElements messagesElements) {
 		MessageElement messageElement;
 		Message message;
 		Author author;
 		AuthorTable authorTable = new AuthorTable(sdb, "authors");
 		int fkId = messagesElements.getFkId();
 		int authorID;
-		for(int i = 0; i < messagesElements.size(); i++){
+		for (int i = 0; i < messagesElements.size(); i++) {
 			messageElement = new MessageElement(messagesElements.get(i), fkId);
 			authorID = messageElement.getAuthorId();
-			if(authorTable.contains(authorID) == null){
+			if (authorTable.contains(authorID) == null) {
 				allAuthors.add(new Author(messageElement.getAuthor(), authorID));
 			}
 			message = new Message(messageElement.getDateMessage(), messageElement.getMessage(), fkId, authorID);
@@ -137,8 +114,8 @@ public class CrawlerApp {
 			allMessage.add(message);
 		}
 	}
-	
-	public boolean updateMessages(MessageElements messageElements) throws SQLException{
+
+	public boolean updateMessages(MessageElements messageElements) {
 		int fkId = messageElements.getFkId();
 		MessageElement messageElement = new MessageElement(messageElements.remove(messageElements.size() - 1), fkId);
 		String date = Tools.stringDateToDateTimeSql(messageElement.getDateMessage());
@@ -146,17 +123,17 @@ public class CrawlerApp {
 		MessageTable messageTable = new MessageTable(sdb, "messages");
 		AuthorTable authorTable = new AuthorTable(sdb, "authors");
 		String lastMessageDate = messageTable.getLastMessageDate(fkId);
-		int comparison = date.compareTo(lastMessageDate);
-		
+		int compar = date.compareTo(lastMessageDate);
+
 		int authorID;
 		Message message;
-		
-		if(comparison == 0){
+
+		if (compar == 0) {
 			return false;
 		}
-		while(!(messageElements.size() == 0) && comparison > 0){
+		while (!(messageElements.size() == 0) && compar > 0) {
 			authorID = messageElement.getAuthorId();
-			if(authorTable.contains(authorID) == null){
+			if (authorTable.contains(authorID) == null) {
 				allAuthors.add(new Author(messageElement.getAuthor(), authorID));
 			}
 			message = new Message(messageElement.getDateMessage(), messageElement.getMessage(), fkId, authorID);
@@ -165,60 +142,83 @@ public class CrawlerApp {
 			messageElement = new MessageElement(messageElements.remove(messageElements.size() - 1), fkId);
 			date = Tools.stringDateToDateTimeSql(messageElement.getDateMessage());
 			date += ".0";
-			comparison = date.compareTo(lastMessageDate);
-			
+			compar = date.compareTo(lastMessageDate);
+
 		}
 		return true;
 	}
 	
 	/**
-	 * Crawl all messages, to build the author and messages tables
-	 * @param messageElements an instance of MessageElements
+	 * Method used for the first build of a database, or if it's needed to
+	 * rebuild it
+	 * 
+	 * @param url
+	 *            the site to crawl
+	 * @throws IOException
 	 */
-	public void visitAllMessageElements(MessageElements messageElements){
+	public void visitAllPages(String url) {
+		ScrumForumCrawler sfc = new ScrumForumCrawler(url);
+		String nextPageUrl = sfc.getNextPageUrl();
+		visitAllTopics(new ScrumPageCrawler(url));
+		System.out.println("Page : " + url + " visited");
+		if (!nextPageUrl.equals("EOS")) {
+			visitAllPages(nextPageUrl);
+		}
+	}
+
+	/**
+	 * Crawl all messages, to build the author and messages tables
+	 * 
+	 * @param messageElements
+	 *            an instance of MessageElements
+	 */
+	public void visitAllMessageElements(MessageElements messageElements) {
 		MessageElement msg;
 		Message message;
 		Author author;
 		boolean ajout;
 		int fkId = messageElements.getFkId();
 		int authorID;
-		for(int i = 0; i < messageElements.size(); i++){
+		for (int i = 0; i < messageElements.size(); i++) {
 			msg = new MessageElement(messageElements.get(i), fkId);
 			authorID = msg.getAuthorId();
 			author = new Author(msg.getAuthor(), authorID);
 			ajout = allAuthors.add(author);
-			if(!(allAuthors == null) && !ajout){
+			if (!ajout) {
 				author = allAuthors.getAuthor(author);
 			}
 			message = new Message(msg.getDateMessage(), msg.getMessage(), fkId, authorID);
 			allMessage.add(message);
 		}
 	}
-	
+
 	/**
 	 * Crawl a forum page to get all topics, authors and messages
-	 * @param spc an instance of ScrumPageCrawler
+	 * 
+	 * @param spc
+	 *            an instance of ScrumPageCrawler
 	 * @throws IOException
 	 */
-	public void visitAllTopics(ScrumPageCrawler spc) throws IOException{
+	public void visitAllTopics(ScrumPageCrawler spc) {
 		Elements topicsOnPage = spc.getTopicsElements();
 		ScrumMessageCrawler smc;
 		TopicElement topic;
 		String topicUrl;
 		MessageElements messageElements;
 		Topic post;
-		for(Element e : topicsOnPage){
+		for (Element e : topicsOnPage) {
 			topic = new TopicElement(e);
 			topicUrl = topic.getStringUrl();
 			post = new Topic(topic.getTopicId(), topic.getTopicTitle(), topicUrl, topic.getTopicNbReplies());
 			allPosts.add(post);
 			smc = new ScrumMessageCrawler(topicUrl);
-			messageElements = new MessageElements(smc.getReplyMessagesNodes(), smc.getTopicMessageNode(), smc.getFkId());
+			messageElements = new MessageElements(smc.getReplyMessagesNodes(), smc.getTopicMessageNode(),
+					smc.getFkId());
 			visitAllMessageElements(messageElements);
 		}
 	}
-	
-	public void writeJsonFiles() throws IOException{
+
+	public void writeJsonFiles() throws IOException {
 		JsonArray jsonMessage = allMessage.toJsonArray();
 		JsonArray jsonTopics = allPosts.toJsonArray();
 		JsonObjectBuilder jsobPosts = Json.createObjectBuilder();
@@ -229,53 +229,50 @@ public class CrawlerApp {
 		OutputStream os_msg;
 		JsonWriter postsWriter;
 		JsonWriter msgWriter;
-		
+
 		jsobPosts.add("posts", jsonTopics);
 		jsobMsg.add("messages", jsonMessage);
 		postsObject = jsobPosts.build();
 		msgObject = jsobMsg.build();
-		
+
 		os_posts = new FileOutputStream("E:\\Documents\\cours\\stage\\scrum\\scrumPosts.json");
 		postsWriter = Json.createWriter(os_posts);
 		postsWriter.writeObject(postsObject);
 		postsWriter.close();
 		os_posts.close();
-		
+
 		os_msg = new FileOutputStream("E:\\Documents\\cours\\stage\\scrum\\scrumMsg.json");
 		msgWriter = Json.createWriter(os_msg);
 		msgWriter.writeObject(msgObject);
 		msgWriter.close();
-		os_msg.close();	
+		os_msg.close();
 	}
-	
-	public void insertAllMessages(MessageTable messageTable) throws SQLException{
+
+	public void insertAllMessages(MessageTable messageTable) throws SQLException {
 		messageTable.insertAll(this.allMessage);
 	}
-	
-	public void insertAllTopics(TopicTable topicTable) throws SQLException{
+
+	public void insertAllTopics(TopicTable topicTable) throws SQLException {
 		topicTable.insertAll(this.allPosts);
 	}
-	
-	public void insertAllAuthors(AuthorTable authorTable) throws SQLException{
+
+	public void insertAllAuthors(AuthorTable authorTable) throws SQLException {
 		authorTable.insertAllAuthor(this.allAuthors);
 	}
-	
-	
-	public void bddFirstBuild() throws IOException{
+
+	public void bddFirstBuild() throws IOException {
 		this.visitAllPages("https://www.scrum.org/forum/scrum-forum");
 		IOSerialTools.saveTopicsAsObject(allPosts);
 		IOSerialTools.saveAuthorsAsObject(allAuthors);
 		IOSerialTools.saveMessagesAsObject(allMessage);
-		try {
-			this.sdb = new ScrumDataBase("jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", "root", "");
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		if(this.sdb != null){
+
+		this.sdb = new ScrumDataBase("jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", "root", "");
+		if (this.sdb != null) {
 			try {
 				this.insertAllTopics(new TopicTable(this.sdb, "topics"));
 				this.insertAllAuthors(new AuthorTable(this.sdb, "authors"));
-				//you must insert the messages after topics and authors had been inserted, because of the foreign keys constraints
+				// you must insert the messages after topics and authors had
+				// been inserted, because of the foreign keys constraints
 				this.insertAllMessages(new MessageTable(this.sdb, "messages"));
 				this.sdb.closeDB();
 
@@ -285,42 +282,18 @@ public class CrawlerApp {
 			}
 		}
 	}
-	
-	public void writeObjectsToDatabase(File ficMessages, File ficTopics, File ficAuthors){
+
+	public void writeObjectsToDatabase(File ficMessages, File ficTopics, File ficAuthors) {
 		this.allAuthors = IOSerialTools.readAuthorsObject(ficAuthors);
 		this.allMessage = IOSerialTools.readMessagesObject(ficMessages);
 		this.allPosts = IOSerialTools.readTopicsObject(ficTopics);
-		try {
-			this.sdb = new ScrumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", "");
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		if(this.sdb != null){
+		this.sdb = new ScrumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", "");
+		if (this.sdb != null) {
 			try {
 				this.insertAllTopics(new TopicTable(this.sdb, "topics"));
 				this.insertAllAuthors(new AuthorTable(this.sdb, "authors"));
-				//you must insert the messages after topics and authors had been inserted, because of the foreign keys constraints
-				this.insertAllMessages(new MessageTable(this.sdb, "messages"));
-				this.sdb.closeDB();
-
-			} catch (SQLException e) {
-				e.getSQLState();
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public void basicUpdate(){
-		try {
-			this.updateDatabase("https://www.scrum.org/forum/scrum-forum");
-		} catch (IOException e1) {
-			System.out.println("Unable to updateDatabase " + e1.getMessage());;
-		}
-		if(this.sdb != null){
-			try {
-				this.insertAllTopics(new TopicTable(this.sdb, "topics"));
-				this.insertAllAuthors(new AuthorTable(this.sdb, "authors"));
-				//you must insert the messages after topics and authors had been inserted, because of the foreign keys constraints
+				// you must insert the messages after topics and authors had
+				// been inserted, because of the foreign keys constraints
 				this.insertAllMessages(new MessageTable(this.sdb, "messages"));
 				this.sdb.closeDB();
 
@@ -331,10 +304,28 @@ public class CrawlerApp {
 		}
 	}
 
-	public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
-		CrawlerApp ca = new CrawlerApp(new ScrumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", ""));
+	public void basicUpdate() {
+		this.updateDatabase("https://www.scrum.org/forum/scrum-forum");
+		if (this.sdb != null) {
+			try {
+				this.insertAllTopics(new TopicTable(this.sdb, "topics"));
+				this.insertAllAuthors(new AuthorTable(this.sdb, "authors"));
+				// you must insert the messages after topics and authors had
+				// been inserted, because of the foreign keys constraints
+				this.insertAllMessages(new MessageTable(this.sdb, "messages"));
+				this.sdb.closeDB();
+
+			} catch (SQLException e) {
+				e.getSQLState();
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		CrawlerApp ca = new CrawlerApp(
+				new ScrumDataBase("jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", "root", ""));
 		ca.basicUpdate();
-		
 	}
 
 }

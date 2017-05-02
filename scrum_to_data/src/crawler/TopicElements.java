@@ -4,10 +4,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class TopicElements {
-	Elements topicElements;
+	private Elements topicElements;
 
 	public TopicElements(Elements topicElements) {
-		super();
 		this.topicElements = topicElements;
 	}
 	

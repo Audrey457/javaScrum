@@ -7,100 +7,96 @@ import java.sql.Statement;
 
 import java_objects.Author;
 import java_objects.HashSetAuthor;
-import java_objects.Message;
 
 /**
- * A mysql table, containing the authors
+ * The representation of a mysql table, containing the authors
  * @author Audrey Loriette
  *
  */
 public class AuthorTable {
 	private ScrumDataBase sdb;
 	private String tableName;
-	//to do : change author_id
 	
+	
+	/**
+	 * Constructor
+	 * @param sdb an instance of ScrumDataBase
+	 * @param tableName an instance of String
+	 * @see ScrumDataBase
+	 */
 	public AuthorTable(ScrumDataBase sdb, String tableName) {
 		super();
 		this.sdb = sdb;
 		this.tableName = tableName;
 	}
 	
-	public void insertAuthor(Author author) throws SQLException{
+	/**
+	 * Insert an author in the tableName (see constructor) table
+	 * @param author an instance of Author
+	 * @see Author
+	 */
+	public void insertAuthor(Author author){
 		String insert = "INSERT INTO " + tableName 
 				+" (author_id, login) "
 				+ " VALUES (?, ?)";
-		PreparedStatement stmt = sdb.getConnection().prepareStatement(insert);
-		stmt.setInt(1, author.getAuthor_id());
-		stmt.setString(2, author.getLogin());
-		stmt.executeUpdate();
-		stmt.close();
+		PreparedStatement stmt;
+		try{
+			stmt = sdb.getConnection().prepareStatement(insert);
+			stmt.setInt(1, author.getAuthor_id());
+			stmt.setString(2, author.getLogin());
+			stmt.executeUpdate();
+			stmt.close();
+		}catch(SQLException e){
+			System.out.println("an error occured when trying to execute an AuthorTable method: + \n" +
+					"insertAuthor(Author author) with author login = " + author.getLogin() + "\n" + 
+					e.getMessage());
+		}
+				
 	}
 	
 	/**
-	 * This method must be used only one time, when the site is for the first time crawled 
+	 * Insert authors in the database
+	 * Be careful : this method does not make any control !
 	 * @param allAuthors an instance of HashSetAuthor
-	 * @throws SQLException 
 	 */
-	public void insertAllAuthor(HashSetAuthor allAuthors) throws SQLException{
+	public void insertAllAuthor(HashSetAuthor allAuthors){
 		for(Author a : allAuthors){
 			insertAuthor(a);
 		}
 	}
 	
-	public void insertAuthor(String login) throws SQLException{
-		String insert = "INSERT INTO " + tableName 
-				+" (login) "
-				+ " VALUES " + login;
-		Statement stmt = sdb.getConnection().createStatement();
-		stmt.executeQuery(insert);
-		stmt.close();
-		
-	}
-	
-	public Author getAuthorByLogin(String login) throws SQLException{
-		String select = "SELECT * FROM " + tableName + 
-				"WHERE login = " + login;
-		Statement stmt = sdb.getConnection().createStatement();
-		ResultSet rs = stmt.executeQuery(select);
-		Author author = new Author(rs.getString("login"), rs.getInt("author_id"));
-		stmt.close();
-		
-		return author;
-	}
-	
-	public int getAuthorId(String login) throws SQLException{
-		String select = "SELECT author_id FROM " + tableName + 
-				"WHERE login = " + login;
-		Statement stmt = sdb.getConnection().createStatement();
-		ResultSet rs = stmt.executeQuery(select);
-		stmt.close();
-		
-		return rs.getInt(1);
-	}
 	
 	/**
-	 * @param login, the author login
-	 * @return an instance of Author, the author with the given login if it is in the table, null if not 
-	 * @throws SQLException
+	 * Get in the database the authors with the given login
+	 * @param login an instance of String
+	 * @return an HashSetAuthor containing all the authors with the given login, or an empty one if no user in the database has this login
 	 */
-	public Author contains(String login) throws SQLException{
-		String sql = "SELECT * FROM " + tableName + 
-				" WHERE login = " + login;
-		Statement stmt = sdb.getConnection().createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		Author author = null;
-		if(rs.next()){
-			author = new Author(rs.getString("login"), rs.getInt("author_id"));
+	public HashSetAuthor getAuthorsByLogin(String login){
+		String select = "SELECT * FROM " + tableName + 
+				"WHERE login = " + login;
+		Statement stmt;
+		ResultSet rs;
+		HashSetAuthor hashSetAuthor = new HashSetAuthor();
+		try{
+			stmt = sdb.getConnection().createStatement();
+			rs = stmt.executeQuery(select);
+			while(rs.next()){
+				hashSetAuthor.add(new Author(rs.getString("login"), rs.getInt("author_id")));
+			}
+			stmt.close();
+		}catch(SQLException e){
+			System.out.println("an error occured when trying to execute an AuthorTable method: + \n" +
+					"getAuthorByLogin(String login) with author login = " + login + "\n" + 
+					e.getMessage());
 		}
-		stmt.close();
 		
-		return author;
+		return hashSetAuthor;
 	}
+	
 	
 	/**
 	 * @param login, the author login
 	 * @return an instance of Author, the author with the given id if it is in the table, null if not 
-	 * @throws SQLException
 	 */
 	public Author contains(int id){
 		String sql = "SELECT * FROM " + tableName + 

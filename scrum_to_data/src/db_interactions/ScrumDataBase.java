@@ -4,14 +4,21 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * The Java representation of a "scrum database" with the URL, login and passwd user
+ * Construct a ScrumDataBase means to connect the user to the database with jdbc
+ * @author Audrey Loriette
+ *
+ */
 public class ScrumDataBase {
-	/*the url to localhost database could be : jdbc:mysql://localhost/<database_name>?autoReconnect=true&useSSL=false
+	/**
+	 * the url to localhost database could be : jdbc:mysql://localhost/<database_name>?autoReconnect=true&useSSL=false
 	 * this : ?autoReconnect=true&useSSL=false is added to avoid ssl warnings
 	 */
-	String url;
-	String login;
-	String passwd;
-	Connection connect;
+	private String url;
+	private String login;
+	private String passwd;
+	private Connection connect;
 	
 	/**
 	 * Create a ScrumDataBase object
@@ -21,20 +28,42 @@ public class ScrumDataBase {
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
 	 */
-	public ScrumDataBase(String url, String login, String passwd) throws ClassNotFoundException, SQLException{
+	public ScrumDataBase(String url, String login, String passwd){
 		this.url = url;
 		this.login = login;
 		this.passwd = passwd;
-		Class.forName("com.mysql.jdbc.Driver");
-		connect = DriverManager.getConnection(url, login, passwd);
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			System.out.println("An error occured when trying to construct a ScrumDataBase " + 
+					e.getMessage());
+		}
+		try {
+			connect = DriverManager.getConnection(url, login, passwd);
+		} catch (SQLException e) {
+			System.out.println("An error occured when trying to construct a ScrumDataBase " + 
+					e.getMessage());
+		}
 	}
 	
+	/**
+	 * @return an instance of Connection
+	 * @see Connection
+	 */
 	public Connection getConnection(){
 		return this.connect;
 	}
 	
-	public void closeDB() throws SQLException{
-		connect.close();
+	/**
+	 * Close the connection to the scrum data base
+	 */
+	public void closeDB(){
+		try {
+			connect.close();
+		} catch (SQLException e) {
+			System.out.println("An error occured when trying to close the database Connection " + 
+					e.getMessage());
+		}
 	}
 	
 	

@@ -116,8 +116,8 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 
 	@Override
 	public int compareTo(Message message) {
-		if(!(this.getId_msg() == message.getId_msg())){
-			return -1;
+		if(this.getId_msg() == message.getId_msg()){
+			return 0;
 		}
 		return this.getDate_message().compareTo(message.getDate_message());
 	}

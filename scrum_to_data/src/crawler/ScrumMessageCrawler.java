@@ -11,9 +11,15 @@ public class ScrumMessageCrawler {
 	private String url;
 	private Document scrumMessagePage;
 	
-	public ScrumMessageCrawler(String url) throws IOException{
+	//public ScrumMessageCrawler(String url, TopicElement topicElement)
+	public ScrumMessageCrawler(String url){
 		this.url = url;
-		this.scrumMessagePage = Jsoup.connect(url).get();
+		try{
+			this.scrumMessagePage = Jsoup.connect(url).get();
+		}catch(IOException e){
+			System.out.println("An error occured when trying to construct a ScrumMessageCrawler " + 
+					"can not access to this site: " + url + "\n" + e.getMessage());
+		}
 	}
 	
 	/**

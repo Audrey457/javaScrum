@@ -11,7 +11,7 @@ public class HashSetAuthor extends LinkedHashSet<Author> {
 	
 	public Author getAuthor(Author author){
 		for(Author a : this){
-			if(a.getLogin().equals(author.getLogin())){
+			if(a.getLogin().equals(author.getLogin()) && a.getAuthor_id() == author.getAuthor_id()){
 				return a;
 			}
 		}

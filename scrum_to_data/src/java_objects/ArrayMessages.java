@@ -6,13 +6,14 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.swing.table.TableModel;
 
 /**
  * An array list of "Message" objects
  * @author Audrey Loriette
  *
  */
-public class ArrayMessages extends ArrayList<Message> {
+public class ArrayMessages extends ArrayList<Message>{
 
 	/**
 	 * As recommended by the documentation for java.io.Serializable (ArrayList
