@@ -4,9 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import java_objects.Author;
-import java_objects.HashSetAuthor;
 
 /**
  * The representation of a mysql table, containing the authors
@@ -14,19 +15,19 @@ import java_objects.HashSetAuthor;
  *
  */
 public class AuthorTable {
-	private ScrumDataBase sdb;
+	private ForumDataBase forumDataBase;
 	private String tableName;
 	
 	
 	/**
 	 * Constructor
-	 * @param sdb an instance of ScrumDataBase
+	 * @param forumDataBase an instance of ForumDataBase
 	 * @param tableName an instance of String
-	 * @see ScrumDataBase
+	 * @see ForumDataBase
 	 */
-	public AuthorTable(ScrumDataBase sdb, String tableName) {
+	public AuthorTable(ForumDataBase forumDataBase, String tableName) {
 		super();
-		this.sdb = sdb;
+		this.forumDataBase = forumDataBase;
 		this.tableName = tableName;
 	}
 	
@@ -36,31 +37,31 @@ public class AuthorTable {
 	 * @see Author
 	 */
 	public void insertAuthor(Author author){
-		String insert = "INSERT INTO " + tableName 
+		if(this.contains(author.getAuthor_id()) != null){
+			String insert = "INSERT INTO " + tableName 
 				+" (author_id, login) "
 				+ " VALUES (?, ?)";
-		PreparedStatement stmt;
-		try{
-			stmt = sdb.getConnection().prepareStatement(insert);
-			stmt.setInt(1, author.getAuthor_id());
-			stmt.setString(2, author.getLogin());
-			stmt.executeUpdate();
-			stmt.close();
-		}catch(SQLException e){
-			System.out.println("an error occured when trying to execute an AuthorTable method: + \n" +
-					"insertAuthor(Author author) with author login = " + author.getLogin() + "\n" + 
-					e.getMessage());
+			PreparedStatement stmt;
+			try{
+				stmt = forumDataBase.getConnection().prepareStatement(insert);
+				stmt.setInt(1, author.getAuthor_id());
+				stmt.setString(2, author.getLogin());
+				stmt.executeUpdate();
+				stmt.close();
+			}catch(SQLException e){
+				System.out.println("an error occured when trying to execute an AuthorTable method: + \n" +
+						"insertAuthor(Author author) with author login = " + author.getLogin() + "\n" + 
+						e.getMessage());
+			}
 		}
-				
 	}
 	
 	/**
 	 * Insert authors in the database
-	 * Be careful : this method does not make any control !
-	 * @param allAuthors an instance of HashSetAuthor
+	 * @param allAuthors an instance of Set/<Author/>
 	 */
-	public void insertAllAuthor(HashSetAuthor allAuthors){
-		for(Author a : allAuthors){
+	public void insertAuthorsList(Set<Author> authorsList){
+		for(Author a : authorsList){
 			insertAuthor(a);
 		}
 	}
@@ -69,19 +70,21 @@ public class AuthorTable {
 	/**
 	 * Get in the database the authors with the given login
 	 * @param login an instance of String
-	 * @return an HashSetAuthor containing all the authors with the given login, or an empty one if no user in the database has this login
+	 * @return a LinkedHashSet/<Author/> containing all the authors 
+	 * with the given login, or an empty one if no user 
+	 * in the database has this login
 	 */
-	public HashSetAuthor getAuthorsByLogin(String login){
+	public LinkedHashSet<Author> getAuthorsByLogin(String login){
 		String select = "SELECT * FROM " + tableName + 
 				"WHERE login = " + login;
 		Statement stmt;
 		ResultSet rs;
-		HashSetAuthor hashSetAuthor = new HashSetAuthor();
+		LinkedHashSet<Author> listAuthors = new LinkedHashSet<>();
 		try{
-			stmt = sdb.getConnection().createStatement();
+			stmt = forumDataBase.getConnection().createStatement();
 			rs = stmt.executeQuery(select);
 			while(rs.next()){
-				hashSetAuthor.add(new Author(rs.getString("login"), rs.getInt("author_id")));
+				listAuthors.add(new Author(rs.getString("login"), rs.getInt("author_id")));
 			}
 			stmt.close();
 		}catch(SQLException e){
@@ -90,7 +93,7 @@ public class AuthorTable {
 					e.getMessage());
 		}
 		
-		return hashSetAuthor;
+		return listAuthors;
 	}
 	
 	
@@ -103,7 +106,7 @@ public class AuthorTable {
 				" WHERE author_id = " + id;
 		Author author = null;
 		try{
-			Statement stmt = sdb.getConnection().createStatement();
+			Statement stmt = forumDataBase.getConnection().createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			if(rs.next()){
 				author = new Author(rs.getString("login"), rs.getInt("author_id"));

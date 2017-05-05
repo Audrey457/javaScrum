@@ -4,10 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
-import java_objects.ArrayMessages;
 import java_objects.Message;
-import some_tools.Tools;
+import some_tools.DateTools;
 
 /**
  * The representation of a mysql table, containing the messages
@@ -15,7 +15,7 @@ import some_tools.Tools;
  *
  */
 public class MessageTable {
-	private ScrumDataBase sdb;
+	private ForumDataBase sdb;
 	private String tableName;
 	
 	/**
@@ -23,7 +23,7 @@ public class MessageTable {
 	 * @param sdb, an instance of ScrumDataBase
 	 * @param tableName, an instance of String
 	 */
-	public MessageTable(ScrumDataBase sdb, String tableName){
+	public MessageTable(ForumDataBase sdb, String tableName){
 		this.sdb = sdb;
 		this.tableName = tableName;
 	}
@@ -38,7 +38,7 @@ public class MessageTable {
 		String insert = "INSERT INTO " + tableName 
 				+" (date_msg, msg, topic_id, author_id) "
 				+ " VALUES (?, ?, ?, ?)";
-		String formattedDate = Tools.stringDateToDateTimeSql(message.getDate_message());
+		String formattedDate = DateTools.stringDateToDateTimeSql(message.getDate_message());
 		PreparedStatement ps;
 		try{
 			ps = sdb.getConnection().prepareStatement(insert);
@@ -58,13 +58,13 @@ public class MessageTable {
 	
 	/**
 	 * Insert all the messages in the database
-	 * Be careful : no checks is carried out !
+	 * Be careful : no check is carried out !
 	 * @param messages an instance of ArrayMessages
 	 */
-	public void insertAll(ArrayMessages messages){
+	public void insertAll(ArrayList<Message> messagesList){
 		Message m;
-		for(int i = 0; i < messages.size(); i++){
-			m = messages.get(i);
+		for(int i = 0; i < messagesList.size(); i++){
+			m = messagesList.get(i);
 			insertMessage(m);
 		}
 	}

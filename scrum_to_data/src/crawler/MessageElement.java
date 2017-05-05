@@ -8,9 +8,9 @@ import org.jsoup.nodes.Element;
  *
  */
 public class MessageElement {
-	Element messageElement;
-	Element authorElement;
-	int fkId;
+	private Element messageElement;
+	private Element authorElement;
+	private int fkId;
 
 	/**
 	 * Constructs a MessageElement with the specified Element and the foreign key id = the topic id

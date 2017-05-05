@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class Tools {
+public class DateTools {
 	
 	/**
 	 * Convert a String (hh:hh (a)(p)m MONTH DAY, aaaa) to a Date

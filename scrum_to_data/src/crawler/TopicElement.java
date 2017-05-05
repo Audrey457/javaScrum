@@ -6,7 +6,6 @@ public class TopicElement {
 	Element topicElement;
 
 	public TopicElement(Element topic) {
-		super();
 		this.topicElement = topic;
 	}
 	

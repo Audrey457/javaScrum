@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
-import java_objects.ArrayTopics;
 import java_objects.Topic;
 
 /**
@@ -13,16 +13,16 @@ import java_objects.Topic;
  * @author Audrey Loriette
  */
 public class TopicTable {
-	ScrumDataBase sdb;
+	ForumDataBase sdb;
 	String tableName;
 	
 	/**
 	 * Constructor
 	 * @param sdb an instance of ScrumDataBase
 	 * @param tableName an instance of String
-	 * @see ScrumDataBase
+	 * @see ForumDataBase
 	 */
-	public TopicTable(ScrumDataBase sdb, String tableName){
+	public TopicTable(ForumDataBase sdb, String tableName){
 		this.sdb = sdb;
 		this.tableName = tableName;
 	}
@@ -56,10 +56,10 @@ public class TopicTable {
 	 * @param topics an instance of ArrayTopics
 	 * @see ArrayTopics
 	 */
-	public void insertAll(ArrayTopics topics){
+	public void insertAll(ArrayList<Topic> topicsList){
 		Topic topic;
-		for(int i = 0; i < topics.size(); i++){
-			topic = topics.get(i);
+		for(int i = 0; i < topicsList.size(); i++){
+			topic = topicsList.get(i);
 			insertTopic(topic);
 		}
 	}
