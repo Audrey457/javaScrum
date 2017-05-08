@@ -3,17 +3,19 @@ package crawler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import db_interactions.AuthorTable;
-import db_interactions.MessageTable;
-import java_objects.Author;
-import java_objects.Message;
-import some_tools.DateTools;
+import databasemodel.MessageTable;
+import domainmodel.Author;
+import domainmodel.Message;
+import sometools.DateTools;
 
 public class TopicCrawler {
 	private String topicUrl;
@@ -22,6 +24,7 @@ public class TopicCrawler {
 	private LinkedHashSet<Author> authorsList;
 	private String initialMessageCssSelector;
 	private String replyMessagesCssSelector;
+	private final Logger logger = Logger.getLogger(TopicCrawler.class);
 	
 
 	/**
@@ -38,8 +41,7 @@ public class TopicCrawler {
 		try{
 			this.topicPage = Jsoup.connect(url).get();
 		}catch(IOException e){
-			System.out.println("An error occured when trying to construct a TopicCrawler " + 
-					"can not access to this site: " + url + "\n" + e.getMessage());
+			logger.fatal(e + "\nCan not connect to: " + url);
 		}
 	}
 	
@@ -48,7 +50,7 @@ public class TopicCrawler {
 	 * you need to write / rewrite / update the database
 	 * @return the messagesList, an instance of ArrayList/<Message/>
 	 */
-	public ArrayList<Message> getMessagesList() {
+	public List<Message> getMessagesList() {
 		return messagesList;
 	}
 	
@@ -58,8 +60,7 @@ public class TopicCrawler {
 	 * @return an instance of Element
 	 */
 	private Element getInitialMessageNode(){
-		Element topicMessage = this.topicPage.select(this.initialMessageCssSelector).get(0);
-		return topicMessage;
+		return this.topicPage.select(this.initialMessageCssSelector).get(0);
 	}
 	
 	/**
@@ -67,8 +68,7 @@ public class TopicCrawler {
 	 * @return an instance of Elements
 	 */
 	private Elements getReplyMessagesNodes(){
-		Elements replyMessages = this.topicPage.select(this.replyMessagesCssSelector);
-		return replyMessages;
+		return this.topicPage.select(this.replyMessagesCssSelector);
 	}
 	
 	/**
@@ -98,7 +98,7 @@ public class TopicCrawler {
 			authorID = messageElement.getAuthorId();
 			this.authorsList.add(new Author(messageElement.getAuthor(), authorID));
 			message = new Message(messageElement.getDateMessage(), messageElement.getMessage(), fkId, authorID);
-			System.out.println("Message from: " + message.getDate_message() + " inserted");
+			logger.info("Message from: " + message.getMessageDate() + " inserted");
 			this.messagesList.add(message);
 		}
 	}
@@ -137,7 +137,7 @@ public class TopicCrawler {
 			authorID = messageElement.getAuthorId();
 			this.authorsList.add(new Author(messageElement.getAuthor(), authorID));
 			message = new Message(messageElement.getDateMessage(), messageElement.getMessage(), fkId, authorID);
-			System.out.println("Message from: " + message.getDate_message() + " inserted");
+			logger.info("Message from: " + message.getMessageDate() + " inserted");
 			this.messagesList.add(message);
 			messageElement = new MessageElement(messageElements.remove(messageElements.size() - 1), fkId);
 			date = DateTools.stringDateToDateTimeSql(messageElement.getDateMessage());
@@ -177,7 +177,7 @@ public class TopicCrawler {
 	/**
 	 * @return the authorList
 	 */
-	public LinkedHashSet<Author> getAuthorList() {
+	public Set<Author> getAuthorList() {
 		return authorsList;
 	}
 }

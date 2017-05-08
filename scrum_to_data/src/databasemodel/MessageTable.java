@@ -1,13 +1,15 @@
-package db_interactions;
+package databasemodel;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.List;
 
-import java_objects.Message;
-import some_tools.DateTools;
+import org.apache.log4j.Logger;
+
+import domainmodel.Message;
+import sometools.DateTools;
 
 /**
  * The representation of a mysql table, containing the messages
@@ -17,6 +19,8 @@ import some_tools.DateTools;
 public class MessageTable {
 	private ForumDataBase sdb;
 	private String tableName;
+	private final Logger logger = Logger.getLogger(MessageTable.class);
+
 	
 	/**
 	 * Constructor
@@ -38,20 +42,20 @@ public class MessageTable {
 		String insert = "INSERT INTO " + tableName 
 				+" (date_msg, msg, topic_id, author_id) "
 				+ " VALUES (?, ?, ?, ?)";
-		String formattedDate = DateTools.stringDateToDateTimeSql(message.getDate_message());
+		String formattedDate = DateTools.stringDateToDateTimeSql(message.getMessageDate());
 		PreparedStatement ps;
 		try{
 			ps = sdb.getConnection().prepareStatement(insert);
 			ps.setString(1,  formattedDate);
 			ps.setString(2, message.getMsg());
-			ps.setInt(3, message.getId_post());
-			ps.setInt(4, message.getAuthor_id());
+			ps.setInt(3, message.getTopicId());
+			ps.setInt(4, message.getAuthorId());
 			ps.executeUpdate();
 			ps.close();
 		}catch(SQLException e){
-			System.out.println("an error occured when trying to execute a MessageTable method: + \n" +
-					"insertMessage(Message message) with message date = " + message.getDate_message() + "\n" + 
-					e.getMessage());
+			logger.error(e + "\nError when trying "
+					+ "to insert message from "
+					+ message.getMessageDate());
 		}
 		
 	}
@@ -61,7 +65,7 @@ public class MessageTable {
 	 * Be careful : no check is carried out !
 	 * @param messages an instance of ArrayMessages
 	 */
-	public void insertAll(ArrayList<Message> messagesList){
+	public void insertAll(List<Message> messagesList){
 		Message m;
 		for(int i = 0; i < messagesList.size(); i++){
 			m = messagesList.get(i);
@@ -71,13 +75,13 @@ public class MessageTable {
 	
 	/**
 	 * Return the date of the latest message for the given topic
-	 * @param topic_id an integer, the topic id for which you want to search the last message date
+	 * @param topicId an integer, the topic id for which you want to search the last message date
 	 * @return a String
 	 */
-	public String getLastMessageDate(int topic_id){
+	public String getLastMessageDate(int topicId){
 		String sql = "SELECT date_msg"
 				+ " FROM messages"
-				+ " WHERE messages.topic_id = " + topic_id 
+				+ " WHERE messages.topic_id = " + topicId 
 				+ " ORDER BY date_msg DESC";
 		String date = "";
 		Statement stmt;
@@ -89,11 +93,12 @@ public class MessageTable {
 			if(rs.next()){
 				date = rs.getString(1);;
 			}
+			rs.close();
 			stmt.close();
 		}catch(SQLException e){
-			System.out.println("an error occured when trying to execute a MessageTable method: + \n" +
-					"getLastMessageDate(int topic_id) with topic id = " + topic_id + "\n" + 
-					e.getMessage());
+			logger.error(e + "\nCan not get the " 
+					+ "last message date of this topic: "
+					+ topicId);
 		}
 		
 		return date;

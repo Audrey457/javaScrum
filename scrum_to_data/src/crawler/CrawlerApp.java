@@ -1,15 +1,19 @@
 package crawler;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
-import db_interactions.ForumDataBase;
-import some_tools.IOSerialTools;
+import databasemodel.ForumDataBase;
+import domainmodel.Author;
+import domainmodel.Message;
+import domainmodel.Topic;
+import sometools.IOSerialTools;
 
 public class CrawlerApp {
 
-	ForumDataBase forumDataBase = null;
-	ForumCrawler forumCrawler;
+	private ForumDataBase forumDataBase = null;
+	private ForumCrawler forumCrawler;
 
 	public CrawlerApp(ForumDataBase forumDataBase, String forumUrl) {
 		this.forumDataBase = forumDataBase;
@@ -17,11 +21,9 @@ public class CrawlerApp {
 
 	}
 
-	public void bddFirstBuild() throws IOException {
+	public void bddFirstBuild() {
 		this.forumCrawler.browseAllPages();
-		IOSerialTools.saveTopicsAsObject(this.forumCrawler.getTopicsList());
-		IOSerialTools.saveAuthorsAsObject(this.forumCrawler.getAuthorsList());
-		IOSerialTools.saveMessagesAsObject(this.forumCrawler.getMessagesList());
+		saveAllAsObjects();
 
 		if (this.forumDataBase != null) {
 			this.forumDataBase.openDB();
@@ -29,6 +31,12 @@ public class CrawlerApp {
 					this.forumCrawler.getAuthorsList());
 			this.forumDataBase.closeDB();
 		}
+	}
+	
+	public void saveAllAsObjects(){
+		IOSerialTools.saveTopicsAsObject((ArrayList<Topic>)this.forumCrawler.getTopicsList());
+		IOSerialTools.saveAuthorsAsObject((LinkedHashSet<Author>)this.forumCrawler.getAuthorsList());
+		IOSerialTools.saveMessagesAsObject((ArrayList<Message>)this.forumCrawler.getMessagesList());
 	}
 
 	public void writeObjectsToDatabase(File ficMessages, File ficTopics, File ficAuthors) {
@@ -47,9 +55,7 @@ public class CrawlerApp {
 					this.forumDataBase.getMessageTable());
 			this.forumDataBase.closeDB();
 		}
-		IOSerialTools.saveTopicsAsObject(this.forumCrawler.getTopicsList());
-		IOSerialTools.saveAuthorsAsObject(this.forumCrawler.getAuthorsList());
-		IOSerialTools.saveMessagesAsObject(this.forumCrawler.getMessagesList());
+		saveAllAsObjects();
 		
 		if (this.forumDataBase != null) {
 			this.forumDataBase.openDB();
@@ -64,7 +70,7 @@ public class CrawlerApp {
 		CrawlerApp crawlerApp = new CrawlerApp(
 				new ForumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", ""),
 				"https://www.scrum.org/forum/scrum-forum");
-		crawlerApp.basicUpdate();
+		crawlerApp.bddFirstBuild();
 	}
 
 }

@@ -1,14 +1,16 @@
-package db_interactions;
+package databasemodel;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-import java_objects.Author;
-import java_objects.Message;
-import java_objects.Topic;
+import org.apache.log4j.Logger;
+
+import domainmodel.Author;
+import domainmodel.Message;
+import domainmodel.Topic;
 
 /**
  * The Java representation of a "scrum database" with the URL, login and passwd user
@@ -28,6 +30,7 @@ public class ForumDataBase {
 	private TopicTable topicTable;
 	private MessageTable messageTable;
 	private AuthorTable authorTable;
+	private final Logger logger = Logger.getLogger(ForumDataBase.class);
 	
 	/**
 	 * Create a ScrumDataBase object
@@ -48,8 +51,7 @@ public class ForumDataBase {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
-			System.out.println("An error occured when trying to construct a ScrumDataBase " + 
-					e.getMessage());
+			logger.fatal(e);
 		}
 	}
 	
@@ -57,8 +59,7 @@ public class ForumDataBase {
 		try {
 			connect = DriverManager.getConnection(url, login, passwd);
 		} catch (SQLException e) {
-			System.out.println("An error occured when trying to construct a ScrumDataBase " + 
-					e.getMessage());
+			logger.fatal(e);
 		}
 	}
 	
@@ -77,8 +78,7 @@ public class ForumDataBase {
 		try {
 			connect.close();
 		} catch (SQLException e) {
-			System.out.println("An error occured when trying to close the database Connection " + 
-					e.getMessage());
+			logger.error(e);
 		}
 	}
 	
@@ -87,7 +87,7 @@ public class ForumDataBase {
 	 * @param messagesList an instance of ArrayList/<Message/>
 	 * @param authorsList an instance of LinkedHashSet/<Author/>
 	 */
-	public void insertInAllTables(ArrayList<Topic> topicsList, ArrayList<Message> messagesList, LinkedHashSet<Author> authorsList){
+	public void insertInAllTables(List<Topic> topicsList, List<Message> messagesList, Set<Author> authorsList){
 		this.topicTable.insertAll(topicsList);
 		this.authorTable.insertAuthorsList(authorsList);
 		this.messageTable.insertAll(messagesList);
@@ -113,8 +113,4 @@ public class ForumDataBase {
 	public AuthorTable getAuthorTable() {
 		return authorTable;
 	}
-	
-	
-	
-	
 }

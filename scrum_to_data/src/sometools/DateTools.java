@@ -1,11 +1,15 @@
-package some_tools;
+package sometools;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class DateTools {
+	
+	//Private constructor to hide the implicite one
+	private DateTools(){
+		
+	}
 	
 	/**
 	 * Convert a String (hh:hh (a)(p)m MONTH DAY, aaaa) to a Date
@@ -13,11 +17,11 @@ public class DateTools {
 	 * @return an instance of java.sql.Date
 	 */
 	public static LocalDateTime stringToDate(String toConvert){
-		toConvert = toConvert.replaceAll("am", "AM");
-		toConvert = toConvert.replaceAll("pm", "PM");
+		String tmp = toConvert.replaceAll("am", "AM");;
+		tmp = tmp.replaceAll("pm", "PM");
 		DateTimeFormatter format = DateTimeFormatter
 				.ofPattern("hh:mm a MMMM d, yyyy", Locale.ENGLISH);
-		return LocalDateTime.parse(toConvert, format);
+		return LocalDateTime.parse(tmp, format);
 	}
 	
 	

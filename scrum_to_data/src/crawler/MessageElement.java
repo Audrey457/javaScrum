@@ -8,27 +8,28 @@ import org.jsoup.nodes.Element;
  *
  */
 public class MessageElement {
-	private Element messageElement;
-	private Element authorElement;
+	private Element messageNode;
+	private Element authorNode;
 	private int fkId;
 
 	/**
 	 * Constructs a MessageElement with the specified Element and the foreign key id = the topic id
-	 * @param messageNode an instance of Element
+	 * @param messageAndAuthorNode an instance of Element
 	 * @param fkId an integer, the topic id
 	 */
-	public MessageElement(Element messageNode, int fkId) {
+	public MessageElement(Element messageAndAuthorNode, int fkId) {
 		super();
-		this.messageElement = messageNode.select(".forum-node-messages-message").get(0);
-		this.authorElement = messageNode.select(".forum-node-messages-author").get(0);
+		this.messageNode = messageAndAuthorNode.select(".forum-node-messages-message").get(0);
+		this.authorNode = messageAndAuthorNode.select(".forum-node-messages-author").get(0);
 		this.fkId = fkId;
 	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString(){
-		return messageElement.toString();
+		return messageNode.toString();
 	}
 	
 	/**
@@ -36,7 +37,7 @@ public class MessageElement {
 	 * @return an instance of String
 	 */
 	public String getMessage(){
-		return messageElement.select("div p").text();
+		return messageNode.select("div p").text();
 	}
 	
 	/**
@@ -52,7 +53,7 @@ public class MessageElement {
 	 * @return an instance of String
 	 */
 	public String getDateMessage(){
-		return messageElement.select(".forum-node-messages-date").text();
+		return messageNode.select(".forum-node-messages-date").text();
 	}
 	
 	/**
@@ -60,7 +61,7 @@ public class MessageElement {
 	 * @return an instance of String
 	 */
 	public String getAuthor(){
-		return authorElement.text();
+		return authorNode.text();
 	}
 	
 	/**
@@ -68,8 +69,8 @@ public class MessageElement {
 	 * @return an int
 	 */
 	public int getAuthorId(){
-		String id = authorElement.select("a").attr("href");
-		if(id.equals("")){
+		String id = authorNode.select("a").attr("href");
+		if("".equals(id)){
 			id = this.getAuthor();
 		}
 		return id.hashCode();

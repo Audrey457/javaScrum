@@ -1,12 +1,14 @@
-package db_interactions;
+package databasemodel;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.List;
 
-import java_objects.Topic;
+import org.apache.log4j.Logger;
+
+import domainmodel.Topic;
 
 /**
  * The representation of a mysql table, containing the topics
@@ -15,6 +17,7 @@ import java_objects.Topic;
 public class TopicTable {
 	ForumDataBase sdb;
 	String tableName;
+	private final Logger logger = Logger.getLogger(TopicTable.class);
 	
 	/**
 	 * Constructor
@@ -29,7 +32,7 @@ public class TopicTable {
 	
 	/**
 	 * Insert a topic in the tableName (see constructor) of the database
-	 * @param topic an insance of Topic
+	 * @param topic an instance of Topic
 	 * @see Topic
 	 */
 	public void insertTopic(Topic topic){
@@ -45,9 +48,8 @@ public class TopicTable {
 			ps.executeUpdate();
 			ps.close();
 		}catch(SQLException e){
-			System.out.println("an error occured when trying to execute a TopicTable method: + \n" +
-					"insertTopic(Topic topic) with topic id = " + topic.getId() + "\n" + 
-					e.getMessage());
+			logger.error(e + "\nCan not insert topic: "
+					+ topic.getId());
 		}
 	}
 	
@@ -56,7 +58,7 @@ public class TopicTable {
 	 * @param topics an instance of ArrayTopics
 	 * @see ArrayTopics
 	 */
-	public void insertAll(ArrayList<Topic> topicsList){
+	public void insertAll(List<Topic> topicsList){
 		Topic topic;
 		for(int i = 0; i < topicsList.size(); i++){
 			topic = topicsList.get(i);
@@ -82,9 +84,7 @@ public class TopicTable {
 			exist = rs.next();
 			stmt.close();
 		}catch(SQLException e){
-			System.out.println("an error occured when trying to execute a TopicTable method: + \n" +
-					"contains(Topic topic) with topic id = " + topic.getId() + "\n" + 
-					e.getMessage());
+			logger.error(e);;
 		}
 		return exist;
 	}
@@ -104,32 +104,31 @@ public class TopicTable {
 			rs = stmt.executeQuery(sql);
 			rs.next();
 			nbReplies = rs.getInt(1);
+			rs.close();
 			stmt.close();
 		}catch(SQLException e){
-			System.out.println("Method getNbReplies(Topic topic) of TopicTable failed due to an SQL error "
-					+ e.getMessage());
+			logger.error(e + "\nCan not get the number of replies of "
+					+ "topic: " + topic.getId());
 		}
 		return nbReplies;
 	}
 	
 	/**
 	 * update the "nb_replies" field for the given topic
-	 * @param topic_id an integer
+	 * @param topicId an integer
 	 * @param nbReplies an integer
 	 */
-	public void updateNbReplies(int topic_id, int nbReplies){
+	public void updateNbReplies(int topicId, int nbReplies){
 		String sql = "UPDATE " + tableName + 
 				" SET nb_replies = " + nbReplies + 
-				" WHERE id=" + topic_id;
+				" WHERE id=" + topicId;
 		Statement stmt = null;
 		try{
 			stmt = sdb.getConnection().createStatement();
 			stmt.executeUpdate(sql);
 			stmt.close();
 		}catch(SQLException e){
-			System.out.println("Method updateNbReplies(int topic_id, int nbReplies) "
-					+ "of TopicTable failed due to an SQL error "
-					+ e.getMessage());
+			logger.error(e + "\n updateNbReplies failed");
 		}
 	}
 }

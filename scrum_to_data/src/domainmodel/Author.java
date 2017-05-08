@@ -1,4 +1,4 @@
-package java_objects;
+package domainmodel;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -14,26 +14,26 @@ public class Author implements Serializable{
 	 */
 	private static final long serialVersionUID = 9191794490858888778L;
 	private String login;
-	private int author_id;
+	private int authorId;
 
 	public Author(String login) {
 		super();
 		this.login = login;
-		this.author_id = login.hashCode();
+		this.authorId = login.hashCode();
 	}
 
-	public Author(String login, int author_id) {
+	public Author(String login, int authorId) {
 		super();
 		this.login = login;
-		this.author_id = author_id;
+		this.authorId = authorId;
 	}
 
-	public int getAuthor_id() {
-		return author_id;
+	public int getAuthorId() {
+		return authorId;
 	}
 
-	public void setAuthor_id(int author_id) {
-		this.author_id = author_id;
+	public void setAuthorId(int authorId) {
+		this.authorId = authorId;
 	}
 
 	public String getLogin() {
@@ -46,12 +46,12 @@ public class Author implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Author id : " + this.author_id + "\t Login : " + this.login;
+		return "Author id : " + this.authorId + "\t Login : " + this.login;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.author_id, this.login);
+		return Objects.hash(this.authorId, this.login);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class Author implements Serializable{
 			return false;
 		}
 		Author other = (Author) obj;
-		if (author_id != other.author_id){
+		if (authorId != other.authorId){
 			return false;
 		}
 		if (login == null) {

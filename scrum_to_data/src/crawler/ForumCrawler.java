@@ -2,18 +2,20 @@ package crawler;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import db_interactions.MessageTable;
-import db_interactions.TopicTable;
-import java_objects.Author;
-import java_objects.Message;
-import java_objects.Topic;
+import databasemodel.MessageTable;
+import databasemodel.TopicTable;
+import domainmodel.Author;
+import domainmodel.Message;
+import domainmodel.Topic;
 
 public class ForumCrawler {
 	private Document forumPage;
@@ -23,6 +25,7 @@ public class ForumCrawler {
 	private String nextPageCssSelector;
 	private String topicElementsCssSelector;
 	private String topicsUrlCssSelector;
+	private final Logger logger = Logger.getLogger(ForumCrawler.class);
 
 
 	/**
@@ -32,6 +35,7 @@ public class ForumCrawler {
 	 * @param pageUrl
 	 */
 	public ForumCrawler(String pageUrl){
+		
 		this.pageUrl = pageUrl;
 		this.topicsList = new ArrayList<>();
 		this.nextPageCssSelector = "li.pager__item.pager__item--next > a";
@@ -40,8 +44,7 @@ public class ForumCrawler {
 		try{
 			this.forumPage = Jsoup.connect(pageUrl).get();
 		}catch(IOException e){
-			System.out.println("An error occured when trying to construct a ScrumForumCrawler " + 
-					"can not access to this site: " + pageUrl + "\n" + e.getMessage());
+			logger.error(e);
 		}
 	}
 	
@@ -49,7 +52,7 @@ public class ForumCrawler {
 	 * @return an ArrayList/<Topic/>, the list of topic to write in the database, 
 	 * after an update / first creation / rewriting operation
 	 */
-	public ArrayList<Topic> getTopicsList() {
+	public List<Topic> getTopicsList() {
 		return topicsList;
 	}
 	
@@ -74,15 +77,13 @@ public class ForumCrawler {
 	public void browseAllPages(){
 		String nextPageUrl = this.getNextPageUrl();
 		getAllTopicsData();
-		System.out.println("Page : " + this.pageUrl + " visited");
-		if(!nextPageUrl.equals("EOS")){
+		logger.info("Page : " + this.pageUrl + " visited");
+		if(!"EOS".equals(nextPageUrl)){
 			this.pageUrl = nextPageUrl;
 			try{
 				this.forumPage = Jsoup.connect(this.pageUrl).get();
 			}catch(IOException e){
-				System.out.println("An error occured when trying to call the browseAllPages "
-						+ "method (ForumCrawler class) can not access to this site: " 
-						+ this.pageUrl + "\n" + e.getMessage());
+				logger.fatal(e + "can not connect to " + this.pageUrl);
 			}
 			browseAllPages();
 		}
@@ -97,17 +98,14 @@ public class ForumCrawler {
 	 */
 	public void browsePagesToUpdate(TopicTable topicTable, MessageTable messageTable){
 		String nextPageUrl = this.getNextPageUrl();
-		boolean goToNextPage = this.updateTopics(topicTable, messageTable);
-		System.out.println("Go to next page = " + goToNextPage);
-		System.out.println("Page : " + pageUrl + " visited");
-		if (goToNextPage && !nextPageUrl.equals("EOS")) {
+		boolean goToNextPage = this.updateTopicTable(topicTable, messageTable);
+		logger.info("Page : " + this.pageUrl + " visited");
+		if (goToNextPage && !"EOS".equals(nextPageUrl)) {
 			this.pageUrl = nextPageUrl;
 			try{
 				this.forumPage = Jsoup.connect(this.pageUrl).get();
 			}catch(IOException e){
-				System.out.println("An error occured when trying to call the browsePagesToUpdate "
-						+ "method (ForumCrawler class). Can not access to this site: " 
-						+ this.pageUrl + "\n" + e.getMessage());
+				logger.fatal(e + "can not connect to " + this.pageUrl);
 			}
 			browsePagesToUpdate(topicTable, messageTable);
 		}
@@ -119,9 +117,7 @@ public class ForumCrawler {
 	 * @return an instance of Elements
 	 */
 	private Elements getTopicsElements(){
-		Elements topicsOnPage = new Elements();
-		topicsOnPage = this.forumPage.select(this.topicElementsCssSelector);
-		return topicsOnPage;
+		return this.forumPage.select(this.topicElementsCssSelector);
 	}
 	
 	/**
@@ -130,7 +126,7 @@ public class ForumCrawler {
 	 * page itself
 	 * @return an ArrayList/<String/>
 	 */
-	public ArrayList<String> getAllTopicsUrl(){
+	public List<String> getAllTopicsUrl(){
 		ArrayList<String> topicsUrls = new ArrayList<>();
 		Elements topicsOnPageUrls = this.getTopicsElements().select(this.topicsUrlCssSelector);
 		for(Element e : topicsOnPageUrls){
@@ -162,47 +158,53 @@ public class ForumCrawler {
 	/**
 	 * Method used when you already have a database, 
 	 * and you want to update it.
-	 * @return true when a topic needed to be updated (if it's a new topic, or if the topic already 
+	 * @return true when the last topic in a page needed to be updated (if it's a new topic, or if the topic already 
 	 * exists in the database, but has one more recent message at least), false otherwise
 	 */
-	private boolean updateTopics(TopicTable topicTable, MessageTable messageTable){
+	private boolean updateTopicTable(TopicTable topicTable, MessageTable messageTable){
 		Elements topicsOnPage = getTopicsElements();
 		TopicElement topicElement;
-		String topicUrl;
-		Topic topic;
-		int topic_id;
-		int nbReplies;
 		boolean goToNextTopic = true;
 
 		while (!(topicsOnPage.isEmpty()) && goToNextTopic) {
 			topicElement = new TopicElement(topicsOnPage.remove(0));
-			if (!topicElement.isStickyTopic()) {
-				topicUrl = topicElement.getStringUrl();
-				topic_id = topicElement.getTopicId();
-				nbReplies = topicElement.getTopicNbReplies();
-				topic = new Topic(topic_id, topicElement.getTopicTitle(), topicUrl, nbReplies);
-				this.topicCrawler = new TopicCrawler(topicUrl);
-				if (topicTable.contains(topic)) {
-					if (topicTable.getNbReplies(topic) != nbReplies) {
-						topicTable.updateNbReplies(topic_id, nbReplies);
-					}
-					System.out.println("Topic num: " + topic_id + " is in database");
-					goToNextTopic = topicCrawler.updateAnExistingTopic(messageTable);
-				} else {
-					System.out.println("Topic num: " + topic_id + " is not in database");
-					this.topicsList.add(topic);
-					this.topicCrawler.getANewTopicMessages();
-				}
-			}
+			goToNextTopic = updateTopicStrategy(topicElement, topicTable, messageTable);
 		}
 		return goToNextTopic;
 	}
 	
-	public ArrayList<Message> getMessagesList() {
+	private boolean updateTopicStrategy(TopicElement topicElement, TopicTable topicTable, MessageTable messageTable){
+		String topicUrl;
+		Topic topic;
+		int topicId;
+		int nbReplies;
+		boolean goToNextTopic = true;
+		if (!topicElement.isStickyTopic()) {
+			topicUrl = topicElement.getStringUrl();
+			topicId = topicElement.getTopicId();
+			nbReplies = topicElement.getTopicNbReplies();
+			topic = new Topic(topicId, topicElement.getTopicTitle(), topicUrl, nbReplies);
+			this.topicCrawler = new TopicCrawler(topicUrl);
+			if (topicTable.contains(topic)) {
+				if (topicTable.getNbReplies(topic) != nbReplies) {
+					topicTable.updateNbReplies(topicId, nbReplies);
+				}
+				logger.info("Topic num: " + topicId + " is in database");
+				goToNextTopic = topicCrawler.updateAnExistingTopic(messageTable);
+			} else {
+				logger.info("Topic num: " + topicId + " is not in database");
+				this.topicsList.add(topic);
+				this.topicCrawler.getANewTopicMessages();
+			}
+		}
+			return goToNextTopic;
+	}
+	
+	public List<Message> getMessagesList() {
 		return this.topicCrawler.getMessagesList();
 	}
 	
-	public LinkedHashSet<Author> getAuthorsList(){
+	public Set<Author> getAuthorsList(){
 		return this.topicCrawler.getAuthorList();
 	}
 }

@@ -2,19 +2,29 @@ package crawler;
 
 import org.jsoup.nodes.Element;
 
+/**
+ * Encapsulate an Element just to add some methods and use only the needed 
+ * methods
+ * @author Audrey Loriette
+ *
+ */
 public class TopicElement {
-	Element topicElement;
+	Element topicNode;
 
-	public TopicElement(Element topic) {
-		this.topicElement = topic;
+	public TopicElement(Element topicNode) {
+		this.topicNode = topicNode;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
 	public String toString(){
-		return topicElement.toString();
+		return topicNode.toString();
 	}
 	
 	public Element getNodeUrl(){
-		return topicElement.select(".forum-list-item-title .forum__title > div > a").get(0);
+		return topicNode.select(".forum-list-item-title .forum__title > div > a").get(0);
 	}
 	
 	public String getStringUrl(){
@@ -30,14 +40,14 @@ public class TopicElement {
 	}
 	
 	public int getTopicNbReplies(){
-		return Integer.parseInt(topicElement.select(".forum-list-item-replies").get(0).text().replaceAll("Replies ", ""));
+		return Integer.parseInt(topicNode.select(".forum-list-item-replies").get(0).text().replaceAll("Replies ", ""));
 	}
 	
 	public String getTopicType(){
-		return topicElement.select("div.forum-list-item-title > div:nth-child(1)").attr("title");
+		return topicNode.select("div.forum-list-item-title > div:nth-child(1)").attr("title");
 	}
 	
 	public boolean isStickyTopic(){
-		return this.getTopicType().equals("Sticky topic");
+		return "Sticky topic".equals(this.getTopicType());
 	}
 }

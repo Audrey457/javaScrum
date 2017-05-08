@@ -1,4 +1,4 @@
-package db_interactions;
+package databasemodel;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,7 +7,9 @@ import java.sql.Statement;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import java_objects.Author;
+import org.apache.log4j.Logger;
+
+import domainmodel.Author;
 
 /**
  * The representation of a mysql table, containing the authors
@@ -17,6 +19,7 @@ import java_objects.Author;
 public class AuthorTable {
 	private ForumDataBase forumDataBase;
 	private String tableName;
+	private final Logger logger = Logger.getLogger(AuthorTable.class);
 	
 	
 	/**
@@ -37,21 +40,20 @@ public class AuthorTable {
 	 * @see Author
 	 */
 	public void insertAuthor(Author author){
-		if(this.contains(author.getAuthor_id()) != null){
+		if(this.contains(author.getAuthorId()) != null){
 			String insert = "INSERT INTO " + tableName 
 				+" (author_id, login) "
 				+ " VALUES (?, ?)";
 			PreparedStatement stmt;
 			try{
 				stmt = forumDataBase.getConnection().prepareStatement(insert);
-				stmt.setInt(1, author.getAuthor_id());
+				stmt.setInt(1, author.getAuthorId());
 				stmt.setString(2, author.getLogin());
 				stmt.executeUpdate();
 				stmt.close();
 			}catch(SQLException e){
-				System.out.println("an error occured when trying to execute an AuthorTable method: + \n" +
-						"insertAuthor(Author author) with author login = " + author.getLogin() + "\n" + 
-						e.getMessage());
+				logger.error(e + "\nAuthor id = " 
+						+ author.getAuthorId() + " not inserted");
 			}
 		}
 	}
@@ -74,7 +76,7 @@ public class AuthorTable {
 	 * with the given login, or an empty one if no user 
 	 * in the database has this login
 	 */
-	public LinkedHashSet<Author> getAuthorsByLogin(String login){
+	public Set<Author> getAuthorsByLogin(String login){
 		String select = "SELECT * FROM " + tableName + 
 				"WHERE login = " + login;
 		Statement stmt;
@@ -86,11 +88,10 @@ public class AuthorTable {
 			while(rs.next()){
 				listAuthors.add(new Author(rs.getString("login"), rs.getInt("author_id")));
 			}
+			rs.close();
 			stmt.close();
 		}catch(SQLException e){
-			System.out.println("an error occured when trying to execute an AuthorTable method: + \n" +
-					"getAuthorByLogin(String login) with author login = " + login + "\n" + 
-					e.getMessage());
+			logger.error(e);
 		}
 		
 		return listAuthors;
@@ -111,10 +112,10 @@ public class AuthorTable {
 			if(rs.next()){
 				author = new Author(rs.getString("login"), rs.getInt("author_id"));
 			}
+			rs.close();
 			stmt.close();
 		}catch(SQLException e){
-			System.out.println("SQL Error when trying to execute contains(int id) method "
-					+ e.getMessage());
+			logger.error(e);
 		}
 		return author;
 	}

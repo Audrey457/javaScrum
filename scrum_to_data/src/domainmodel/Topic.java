@@ -1,4 +1,4 @@
-package java_objects;
+package domainmodel;
 
 import java.io.Serializable;
 
@@ -19,14 +19,14 @@ public class Topic implements Serializable {
 	private int id;
 	private String title;
 	private String url;
-	private int nb_replies;
+	private int nbReplies;
 	
-	public Topic(int id, String title, String url, int nb_replies) {
+	public Topic(int id, String title, String url, int nbReplies) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.url = url;
-		this.nb_replies = nb_replies;
+		this.nbReplies = nbReplies;
 	}
 	
 
@@ -49,19 +49,20 @@ public class Topic implements Serializable {
 		this.title = title;
 	}
 	
-	public void setNbReplies(int nb_replies){
-		this.nb_replies = nb_replies;
+	public void setNbReplies(int nbReplies){
+		this.nbReplies = nbReplies;
 	}
 	
 	public int getNbReplies(){
-		return this.nb_replies;
+		return this.nbReplies;
 	}
 	
+	@Override
 	public String toString(){
 		return "------ ID = " + id + "------"
 				+ "\n" + title 
 				+ "\n" + url
-				+ "\n" + nb_replies + "\n"
+				+ "\n" + nbReplies + "\n"
 				+ "---------------------------\n";
 		
 	}
@@ -77,7 +78,7 @@ public class Topic implements Serializable {
 		postBuilder.add("id", this.getId());
 		postBuilder.add("title", this.getTitle());
 		postBuilder.add("url", this.getUrl());
-		postBuilder.add("nb_replies", this.nb_replies);
+		postBuilder.add("nb_replies", this.nbReplies);
 		return postBuilder.build();
 	}
 }
