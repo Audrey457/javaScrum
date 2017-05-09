@@ -68,9 +68,11 @@ public class CrawlerApp {
 
 	public static void main(String[] args) {
 		CrawlerApp crawlerApp = new CrawlerApp(
-				new ForumDataBase("jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", "root", ""),
+				new ForumDataBase(
+						"jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", 
+						"root", ""),
 				"https://www.scrum.org/forum/scrum-forum");
-		crawlerApp.bddFirstBuild();
+		crawlerApp.basicUpdate();
 	}
 
 }

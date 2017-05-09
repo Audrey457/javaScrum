@@ -47,6 +47,7 @@ public class TopicTable {
 			ps.setInt(4, topic.getNbReplies());
 			ps.executeUpdate();
 			ps.close();
+			logger.info("Topic: " + topic.getId() + " inserted");
 		}catch(SQLException e){
 			logger.error(e + "\nCan not insert topic: "
 					+ topic.getId());

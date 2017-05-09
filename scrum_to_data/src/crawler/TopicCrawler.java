@@ -2,6 +2,7 @@ package crawler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,7 @@ public class TopicCrawler {
 	private Document topicPage;
 	private ArrayList<Message> messagesList;
 	private LinkedHashSet<Author> authorsList;
+	private Elements messageElements;
 	private String initialMessageCssSelector;
 	private String replyMessagesCssSelector;
 	private final Logger logger = Logger.getLogger(TopicCrawler.class);
@@ -43,15 +45,7 @@ public class TopicCrawler {
 		}catch(IOException e){
 			logger.fatal(e + "\nCan not connect to: " + url);
 		}
-	}
-	
-	/**
-	 * The messages list contains all the messages to write, when 
-	 * you need to write / rewrite / update the database
-	 * @return the messagesList, an instance of ArrayList/<Message/>
-	 */
-	public List<Message> getMessagesList() {
-		return messagesList;
+		this.messageElements = this.getAllMessageElements();
 	}
 	
 	/**
@@ -79,105 +73,75 @@ public class TopicCrawler {
 		return Integer.parseInt(this.topicUrl.split("/")[5]);
 	}
 	
-	/**
-	 * Method used when you already have a database and you want to
-	 * update it.
-	 *  It gets all the messages of a new topic.
-	 */
-	public void getANewTopicMessages(){
-		Elements messagesElements;
-		MessageElement messageElement;
-		Message message;
-		int fkId = this.getTopicId();
-		int authorID;
-		
-		messagesElements = this.getReplyMessagesNodes();
-		messagesElements.add(0, this.getInitialMessageNode());
-		for (int i = 0; i < messagesElements.size(); i++) {
-			messageElement = new MessageElement(messagesElements.get(i), fkId);
-			authorID = messageElement.getAuthorId();
-			this.authorsList.add(new Author(messageElement.getAuthor(), authorID));
-			message = new Message(messageElement.getDateMessage(), messageElement.getMessage(), fkId, authorID);
-			logger.info("Message from: " + message.getMessageDate() + " inserted");
-			this.messagesList.add(message);
-		}
-	}
 	
 	/**
 	 * Method used when you already have a database and you want to
 	 * update it.
 	 * It gets all the new messages that belong to an already existing topic.
 	 * @param messageTable an instance of MessageTable, the table to update
-	 * @return false if the last message date is the same than 
-	 * the last message date in the database for this topic,
-	 * true otherwise 
+	 * @return a List/<Message/> (an empty list if the topic do not need to 
+	 * be updated)
 	 */
-	public boolean updateAnExistingTopic(MessageTable messageTable){
-		Elements messageElements;
-		int authorID;
-		Message message;
-		MessageElement messageElement;
-		String date;
-		int compar;
-
-		int fkId = this.getTopicId();
-		String lastMessageDate = messageTable.getLastMessageDate(fkId);
-		
-		messageElements = this.getReplyMessagesNodes();
-		messageElements.add(0, this.getInitialMessageNode());
-		messageElement = new MessageElement(messageElements.remove(messageElements.size() - 1), fkId);
-		date = DateTools.stringDateToDateTimeSql(messageElement.getDateMessage());
-		date += ".0";
-		compar = date.compareTo(lastMessageDate);
-
-		if (compar <= 0) {
-			return false;
-		}
-		while (!(messageElements.size() == 0) && compar > 0) {
-			authorID = messageElement.getAuthorId();
-			this.authorsList.add(new Author(messageElement.getAuthor(), authorID));
-			message = new Message(messageElement.getDateMessage(), messageElement.getMessage(), fkId, authorID);
-			logger.info("Message from: " + message.getMessageDate() + " inserted");
-			this.messagesList.add(message);
-			messageElement = new MessageElement(messageElements.remove(messageElements.size() - 1), fkId);
-			date = DateTools.stringDateToDateTimeSql(messageElement.getDateMessage());
-			date += ".0";
-			compar = date.compareTo(lastMessageDate);
-
-		}
-		return true;
+	public List<Message> updateAnExistingTopic(MessageTable messageTable){
+		ArrayList<Message> messagesList = (ArrayList<Message>) this.getMessagesList();
+		ArrayList<Message> messagesListFromDataBase = (ArrayList<Message>) messageTable.getAllMessagesOfATopic(this.getTopicId());
+		messagesList.removeAll(messagesListFromDataBase);
+		return messagesList;
 	}
 	
+	/**
+	 * @return an instance of Elements
+	 */
+	private Elements getAllMessageElements(){
+		Elements messageElements;
+		messageElements = this.getReplyMessagesNodes();
+		messageElements.add(0, this.getInitialMessageNode());
+		return messageElements;
+	}
+	
+	
+	/**
+	 * Method used to convert an instance of Elements, which represents 
+	 * all the messages of a topic in HTML format, to a list of Message 
+	 * Crawl a topic page to get all messages
+	 * @return an instance of List/<Message/>
+	 * @see Message
+	 */
+	public List<Message> getMessagesList(){
+		MessageElement msg;
+		Message message;
+		int authorID;
+		ArrayList<Message> messagesList = new ArrayList<>();
+		int fkId = this.getTopicId();
+		
+		for (int i = 0; i < this.messageElements.size(); i++) {
+			msg = new MessageElement(this.messageElements.get(i), fkId);
+			authorID = msg.getAuthorId();
+			message = new Message(DateTools.stringDateToDateTimeSql(msg.getDateMessage())+".0",
+					msg.getMessage(), fkId, authorID);
+			messagesList.add(message);
+		}
+		return messagesList;
+	}
 	
 	/**
 	 * Method used when you do not already have a database, 
-	 * or when you want to rewrite it.
-	 * Crawl a topic page to get all authors and messages
+	 * or when you want to rewrite it, or when you want to insert 
+	 * the messages authors of a new topic
+	 * Crawl a topic page to get all authors
+	 * @return an instance of Set/<Author/>
 	 */
-	public void getAllMessagesData(){
-		Elements messageElements;
+	public Set<Author> getAuthorsList() {
 		MessageElement msg;
-		Message message;
 		Author author;
-		int authorID;
+		LinkedHashSet<Author> authorsList = new LinkedHashSet<>();
 		int fkId = this.getTopicId();
 		
-		messageElements = this.getReplyMessagesNodes();
-		messageElements.add(0, this.getInitialMessageNode());
-		for (int i = 0; i < messageElements.size(); i++) {
-			msg = new MessageElement(messageElements.get(i), fkId);
-			authorID = msg.getAuthorId();
-			author = new Author(msg.getAuthor(), authorID);
-			this.authorsList.add(author);
-			message = new Message(msg.getDateMessage(), msg.getMessage(), fkId, authorID);
-			this.messagesList.add(message);
+		for (int i = 0; i < this.messageElements.size(); i++) {
+			msg = new MessageElement(this.messageElements.get(i), fkId);
+			author = new Author(msg.getAuthor(), msg.getAuthorId());
+			authorsList.add(author);
 		}
-	}
-	
-	/**
-	 * @return the authorList
-	 */
-	public Set<Author> getAuthorList() {
 		return authorsList;
 	}
 }

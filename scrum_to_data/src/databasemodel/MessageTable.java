@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -42,16 +43,16 @@ public class MessageTable {
 		String insert = "INSERT INTO " + tableName 
 				+" (date_msg, msg, topic_id, author_id) "
 				+ " VALUES (?, ?, ?, ?)";
-		String formattedDate = DateTools.stringDateToDateTimeSql(message.getMessageDate());
 		PreparedStatement ps;
 		try{
 			ps = sdb.getConnection().prepareStatement(insert);
-			ps.setString(1,  formattedDate);
+			ps.setString(1,  message.getMessageDate());
 			ps.setString(2, message.getMsg());
 			ps.setInt(3, message.getTopicId());
 			ps.setInt(4, message.getAuthorId());
 			ps.executeUpdate();
 			ps.close();
+			logger.info("Message from: " + message.getMessageDate() + " topic id: " + message.getTopicId() + " inserted");
 		}catch(SQLException e){
 			logger.error(e + "\nError when trying "
 					+ "to insert message from "
@@ -102,5 +103,33 @@ public class MessageTable {
 		}
 		
 		return date;
+	}
+	
+	public List<Message> getAllMessagesOfATopic(int topicId){
+		Statement stmt;
+		ResultSet rs;
+		String sql = "SELECT *"
+				+ " FROM messages"
+				+ " WHERE messages.topic_id = " + topicId 
+				+ " ORDER BY date_msg DESC";
+		ArrayList<Message> messagesList = new ArrayList<>();
+		
+		try{
+			stmt = sdb.getConnection().createStatement();
+			rs = stmt.executeQuery(sql);
+			while(rs.next()){
+				messagesList.add(new Message(rs.getString("date_msg"), 
+						rs.getString("msg"), rs.getInt("topic_id"), 
+						rs.getInt("author_id"), rs.getInt("id_msg")));
+			}
+			rs.close();
+			stmt.close();
+		}catch(SQLException e){
+			logger.error(e + "\nCan not get the " 
+					+ "messages list of this topic: "
+					+ topicId);
+		}
+		
+		return messagesList;
 	}
 }

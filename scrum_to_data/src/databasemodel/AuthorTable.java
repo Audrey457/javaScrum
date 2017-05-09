@@ -40,7 +40,7 @@ public class AuthorTable {
 	 * @see Author
 	 */
 	public void insertAuthor(Author author){
-		if(this.contains(author.getAuthorId()) != null){
+		if(this.contains(author.getAuthorId()) == null){
 			String insert = "INSERT INTO " + tableName 
 				+" (author_id, login) "
 				+ " VALUES (?, ?)";
@@ -51,6 +51,7 @@ public class AuthorTable {
 				stmt.setString(2, author.getLogin());
 				stmt.executeUpdate();
 				stmt.close();
+				logger.info("Author: " + author.getLogin() + " inserted");
 			}catch(SQLException e){
 				logger.error(e + "\nAuthor id = " 
 						+ author.getAuthorId() + " not inserted");

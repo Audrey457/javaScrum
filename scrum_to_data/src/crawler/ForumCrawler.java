@@ -2,6 +2,7 @@ package crawler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ public class ForumCrawler {
 	private TopicCrawler topicCrawler;
 	private String pageUrl;
 	private ArrayList<Topic> topicsList;
+	private ArrayList<Message> messagesList;
+	private LinkedHashSet<Author> authorsList;
 	private String nextPageCssSelector;
 	private String topicElementsCssSelector;
 	private String topicsUrlCssSelector;
@@ -38,6 +41,8 @@ public class ForumCrawler {
 		
 		this.pageUrl = pageUrl;
 		this.topicsList = new ArrayList<>();
+		this.authorsList = new LinkedHashSet<>();
+		this.messagesList = new ArrayList<>();
 		this.nextPageCssSelector = "li.pager__item.pager__item--next > a";
 		this.topicElementsCssSelector = ".forum-list-view-item";
 		this.topicsUrlCssSelector = ".forum-list-item-title .forum__title > div > a";
@@ -49,7 +54,7 @@ public class ForumCrawler {
 	}
 	
 	/**
-	 * @return an ArrayList/<Topic/>, the list of topic to write in the database, 
+	 * @return a List/<Topic/>, the list of topic to write in the database, 
 	 * after an update / first creation / rewriting operation
 	 */
 	public List<Topic> getTopicsList() {
@@ -151,7 +156,8 @@ public class ForumCrawler {
 			topic = new Topic(topicElement.getTopicId(), topicElement.getTopicTitle(), topicUrl, topicElement.getTopicNbReplies());
 			topicsList.add(topic);
 			this.topicCrawler = new TopicCrawler(topicUrl);
-			this.topicCrawler.getAllMessagesData();
+			this.authorsList.addAll(this.topicCrawler.getAuthorsList());
+			this.messagesList.addAll(this.topicCrawler.getMessagesList());
 		}
 	}
 	
@@ -190,21 +196,24 @@ public class ForumCrawler {
 					topicTable.updateNbReplies(topicId, nbReplies);
 				}
 				logger.info("Topic num: " + topicId + " is in database");
-				goToNextTopic = topicCrawler.updateAnExistingTopic(messageTable);
+				goToNextTopic = this.messagesList.addAll(topicCrawler.updateAnExistingTopic(messageTable));
+				this.authorsList.addAll(this.topicCrawler.getAuthorsList());
 			} else {
 				logger.info("Topic num: " + topicId + " is not in database");
 				this.topicsList.add(topic);
-				this.topicCrawler.getANewTopicMessages();
+				this.topicCrawler = new TopicCrawler(topicUrl);
+				this.authorsList.addAll(this.topicCrawler.getAuthorsList());
+				this.messagesList.addAll(this.topicCrawler.getMessagesList());
 			}
 		}
 			return goToNextTopic;
 	}
 	
 	public List<Message> getMessagesList() {
-		return this.topicCrawler.getMessagesList();
+		return this.messagesList;
 	}
 	
 	public Set<Author> getAuthorsList(){
-		return this.topicCrawler.getAuthorList();
+		return this.authorsList;
 	}
 }

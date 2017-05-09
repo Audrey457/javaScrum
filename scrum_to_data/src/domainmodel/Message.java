@@ -117,10 +117,10 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 
 	@Override
 	public int compareTo(Message message) {
-		if(this.getMsgId() == message.getMsgId()){
+		if (message.equals(this)){
 			return 0;
 		}
-		return this.getMessageDate().compareTo(message.getMessageDate());
+		return this.messageDate.compareTo(message.messageDate);
 	}
 
 	/* (non-Javadoc)
@@ -130,8 +130,9 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + authorId;
 		result = prime * result + ((messageDate == null) ? 0 : messageDate.hashCode());
-		result = prime * result + msgId;
+		result = prime * result + topicId;
 		return result;
 	}
 
@@ -147,7 +148,9 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 		if (getClass() != obj.getClass())
 			return false;
 		Message other = (Message) obj;
-		if (msgId != other.msgId)
+		if (topicId != other.topicId)
+			return false;
+		if (authorId != other.authorId)
 			return false;
 		if (messageDate == null) {
 			if (other.messageDate != null)
