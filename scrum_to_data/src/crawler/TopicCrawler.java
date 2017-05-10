@@ -2,7 +2,6 @@ package crawler;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import databasemodel.MessageTable;
+import databasemodel.MessagesTable;
 import domainmodel.Author;
 import domainmodel.Message;
 import sometools.DateTools;
@@ -21,8 +20,6 @@ import sometools.DateTools;
 public class TopicCrawler {
 	private String topicUrl;
 	private Document topicPage;
-	private ArrayList<Message> messagesList;
-	private LinkedHashSet<Author> authorsList;
 	private Elements messageElements;
 	private String initialMessageCssSelector;
 	private String replyMessagesCssSelector;
@@ -36,8 +33,6 @@ public class TopicCrawler {
 	 */
 	public TopicCrawler(String url){
 		this.topicUrl = url;
-		this.messagesList = new ArrayList<>();
-		this.authorsList = new LinkedHashSet<>();
 		this.initialMessageCssSelector = ".forum-node-topic";
 		this.replyMessagesCssSelector = ".forum-node-container > .forum-node-reply";
 		try{
@@ -45,7 +40,7 @@ public class TopicCrawler {
 		}catch(IOException e){
 			logger.fatal(e + "\nCan not connect to: " + url);
 		}
-		this.messageElements = this.getAllMessageElements();
+		setAllMessageElements();
 	}
 	
 	/**
@@ -82,21 +77,16 @@ public class TopicCrawler {
 	 * @return a List/<Message/> (an empty list if the topic do not need to 
 	 * be updated)
 	 */
-	public List<Message> updateAnExistingTopic(MessageTable messageTable){
+	public List<Message> updateAnExistingTopic(MessagesTable messageTable){
 		ArrayList<Message> messagesList = (ArrayList<Message>) this.getMessagesList();
 		ArrayList<Message> messagesListFromDataBase = (ArrayList<Message>) messageTable.getAllMessagesOfATopic(this.getTopicId());
 		messagesList.removeAll(messagesListFromDataBase);
 		return messagesList;
 	}
 	
-	/**
-	 * @return an instance of Elements
-	 */
-	private Elements getAllMessageElements(){
-		Elements messageElements;
-		messageElements = this.getReplyMessagesNodes();
-		messageElements.add(0, this.getInitialMessageNode());
-		return messageElements;
+	private void setAllMessageElements(){
+		this.messageElements = this.getReplyMessagesNodes();
+		this.messageElements.add(0, this.getInitialMessageNode());
 	}
 	
 	
@@ -117,7 +107,7 @@ public class TopicCrawler {
 		for (int i = 0; i < this.messageElements.size(); i++) {
 			msg = new MessageElement(this.messageElements.get(i), fkId);
 			authorID = msg.getAuthorId();
-			message = new Message(DateTools.stringDateToDateTimeSql(msg.getDateMessage())+".0",
+			message = new Message(DateTools.stringDateToDateTimeSql(msg.getDateMessage()) + ".0",
 					msg.getMessage(), fkId, authorID);
 			messagesList.add(message);
 		}

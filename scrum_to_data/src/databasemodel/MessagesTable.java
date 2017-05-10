@@ -10,17 +10,21 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import domainmodel.Message;
-import sometools.DateTools;
 
 /**
  * The representation of a mysql table, containing the messages
  * @author Audrey Loriette
  *
  */
-public class MessageTable {
+public class MessagesTable {
 	private ForumDataBase sdb;
 	private String tableName;
-	private final Logger logger = Logger.getLogger(MessageTable.class);
+	private final Logger logger = Logger.getLogger(MessagesTable.class);
+	private String MESSAGE_DATE =  "messageDate";
+	private String TOPIC_ID = "topicId";
+	private String MESSAGE_TEXT = "messageText";
+	private String AUTHOR_ID = "authorId";
+	private String MESSAGE_ID = "messageId";
 
 	
 	/**
@@ -28,7 +32,7 @@ public class MessageTable {
 	 * @param sdb, an instance of ScrumDataBase
 	 * @param tableName, an instance of String
 	 */
-	public MessageTable(ForumDataBase sdb, String tableName){
+	public MessagesTable(ForumDataBase sdb, String tableName){
 		this.sdb = sdb;
 		this.tableName = tableName;
 	}
@@ -41,7 +45,10 @@ public class MessageTable {
 	 */
 	public void insertMessage(Message message){
 		String insert = "INSERT INTO " + tableName 
-				+" (date_msg, msg, topic_id, author_id) "
+				+" (" + this.MESSAGE_DATE + ", " + 
+				this.MESSAGE_TEXT + ", " + 
+				this.TOPIC_ID + ", " + 
+				this.AUTHOR_ID + ") "
 				+ " VALUES (?, ?, ?, ?)";
 		PreparedStatement ps;
 		try{
@@ -80,10 +87,10 @@ public class MessageTable {
 	 * @return a String
 	 */
 	public String getLastMessageDate(int topicId){
-		String sql = "SELECT date_msg"
-				+ " FROM messages"
-				+ " WHERE messages.topic_id = " + topicId 
-				+ " ORDER BY date_msg DESC";
+		String sql = "SELECT " + this.MESSAGE_DATE
+				+ " FROM " + this.tableName
+				+ " WHERE " + this.TOPIC_ID + " = " + topicId 
+				+ " ORDER BY " + this.MESSAGE_DATE + " DESC";
 		String date = "";
 		Statement stmt;
 		ResultSet rs;
@@ -109,18 +116,18 @@ public class MessageTable {
 		Statement stmt;
 		ResultSet rs;
 		String sql = "SELECT *"
-				+ " FROM messages"
-				+ " WHERE messages.topic_id = " + topicId 
-				+ " ORDER BY date_msg DESC";
+				+ " FROM " + this.tableName
+				+ " WHERE " + this.TOPIC_ID + " = " + topicId 
+				+ " ORDER BY " + this.MESSAGE_DATE + " DESC";
 		ArrayList<Message> messagesList = new ArrayList<>();
 		
 		try{
 			stmt = sdb.getConnection().createStatement();
 			rs = stmt.executeQuery(sql);
 			while(rs.next()){
-				messagesList.add(new Message(rs.getString("date_msg"), 
-						rs.getString("msg"), rs.getInt("topic_id"), 
-						rs.getInt("author_id"), rs.getInt("id_msg")));
+				messagesList.add(new Message(rs.getString(this.MESSAGE_DATE), 
+						rs.getString(this.MESSAGE_TEXT), rs.getInt(this.TOPIC_ID), 
+						rs.getInt(this.AUTHOR_ID), rs.getInt(this.MESSAGE_ID)));
 			}
 			rs.close();
 			stmt.close();

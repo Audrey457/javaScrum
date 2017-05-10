@@ -2,6 +2,6 @@ CREATE TABLE topics (
     `title` VARCHAR(1950) CHARACTER SET utf8,
     `url` VARCHAR(2048) CHARACTER SET utf8,
     `id` INT UNSIGNED PRIMARY KEY,
-    `nb_replies`INT UNSIGNED
+    `nbReplies`INT UNSIGNED
 )
 ENGINE=InnoDB;

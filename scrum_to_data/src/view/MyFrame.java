@@ -50,7 +50,6 @@ public class MyFrame extends JFrame {
 		this.addListeners();
 		pack();
 		this.setLocationRelativeTo(null);
-		this.setResizable(false);
 		this.setVisible(true);
 	}
 

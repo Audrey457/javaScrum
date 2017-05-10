@@ -19,6 +19,7 @@ import domainmodel.Topic;
  *
  */
 public class ForumDataBase {
+	
 	/**
 	 * the url to localhost database could be : jdbc:mysql://localhost/<database_name>?autoReconnect=true&useSSL=false
 	 * this : ?autoReconnect=true&useSSL=false is added to avoid ssl warnings
@@ -27,9 +28,9 @@ public class ForumDataBase {
 	private String login;
 	private String passwd;
 	private Connection connect;
-	private TopicTable topicTable;
-	private MessageTable messageTable;
-	private AuthorTable authorTable;
+	private TopicsTable topicTable;
+	private MessagesTable messageTable;
+	private AuthorsTable authorTable;
 	private final Logger logger = Logger.getLogger(ForumDataBase.class);
 	
 	/**
@@ -45,9 +46,9 @@ public class ForumDataBase {
 		this.url = url;
 		this.login = login;
 		this.passwd = passwd;
-		this.topicTable = new TopicTable(this, "topics");
-		this.messageTable = new MessageTable(this, "messages");
-		this.authorTable = new AuthorTable(this, "authors");
+		this.topicTable = new TopicsTable(this, "topics");
+		this.messageTable = new MessagesTable(this, "messages");
+		this.authorTable = new AuthorsTable(this, "authors");
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -60,6 +61,8 @@ public class ForumDataBase {
 			connect = DriverManager.getConnection(url, login, passwd);
 		} catch (SQLException e) {
 			logger.fatal(e);
+		} finally {
+			logger.info("Connected to database");
 		}
 	}
 	
@@ -79,6 +82,8 @@ public class ForumDataBase {
 			connect.close();
 		} catch (SQLException e) {
 			logger.error(e);
+		} finally {
+			logger.info("Database connection closed");
 		}
 	}
 	
@@ -96,21 +101,21 @@ public class ForumDataBase {
 	/**
 	 * @return the topicTable
 	 */
-	public TopicTable getTopicTable() {
+	public TopicsTable getTopicTable() {
 		return topicTable;
 	}
 
 	/**
 	 * @return the messageTable
 	 */
-	public MessageTable getMessageTable() {
+	public MessagesTable getMessageTable() {
 		return messageTable;
 	}
 
 	/**
 	 * @return the authorTable
 	 */
-	public AuthorTable getAuthorTable() {
+	public AuthorsTable getAuthorTable() {
 		return authorTable;
 	}
 }

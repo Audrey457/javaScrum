@@ -14,10 +14,14 @@ import domainmodel.Topic;
  * The representation of a mysql table, containing the topics
  * @author Audrey Loriette
  */
-public class TopicTable {
+public class TopicsTable {
 	ForumDataBase sdb;
 	String tableName;
-	private final Logger logger = Logger.getLogger(TopicTable.class);
+	private final Logger logger = Logger.getLogger(TopicsTable.class);
+	private final String ID = "id";
+	private final String TITLE = "title";
+	private final String URL = "url";
+	private final String NB_REPLIES = "nbReplies";
 	
 	/**
 	 * Constructor
@@ -25,7 +29,7 @@ public class TopicTable {
 	 * @param tableName an instance of String
 	 * @see ForumDataBase
 	 */
-	public TopicTable(ForumDataBase sdb, String tableName){
+	public TopicsTable(ForumDataBase sdb, String tableName){
 		this.sdb = sdb;
 		this.tableName = tableName;
 	}
@@ -74,7 +78,7 @@ public class TopicTable {
 	 */
 	public boolean contains(Topic topic){
 		String test = "SELECT * FROM " + tableName
-				+ " WHERE id=?";
+				+ " WHERE " + this.ID + " = ?";
 		PreparedStatement stmt;
 		ResultSet rs;
 		boolean exist = false;
@@ -95,8 +99,8 @@ public class TopicTable {
 	 * @return the number of Replies for the given Topic, -1 if it doesn't exist in the database, or if an SQLException occurred
 	 */
 	public int getNbReplies(Topic topic){
-		String sql = "SELECT nb_replies FROM " + tableName
-				+ " WHERE id=" + topic.getId();
+		String sql = "SELECT " + this.NB_REPLIES + " FROM " + tableName
+				+ " WHERE " + this.ID + " = " + topic.getId();
 		Statement stmt = null;
 		ResultSet rs;
 		int nbReplies = -1;
@@ -121,8 +125,8 @@ public class TopicTable {
 	 */
 	public void updateNbReplies(int topicId, int nbReplies){
 		String sql = "UPDATE " + tableName + 
-				" SET nb_replies = " + nbReplies + 
-				" WHERE id=" + topicId;
+				" SET " + this.NB_REPLIES + " = " + nbReplies + 
+				" WHERE " + this.ID + " = " + topicId;
 		Statement stmt = null;
 		try{
 			stmt = sdb.getConnection().createStatement();

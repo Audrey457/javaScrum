@@ -16,10 +16,12 @@ import domainmodel.Author;
  * @author Audrey Loriette
  *
  */
-public class AuthorTable {
+public class AuthorsTable {
 	private ForumDataBase forumDataBase;
 	private String tableName;
-	private final Logger logger = Logger.getLogger(AuthorTable.class);
+	private final Logger logger = Logger.getLogger(AuthorsTable.class);
+	private final String AUTHOR_ID = "authorId";
+	private final String LOGIN = "login";
 	
 	
 	/**
@@ -28,7 +30,7 @@ public class AuthorTable {
 	 * @param tableName an instance of String
 	 * @see ForumDataBase
 	 */
-	public AuthorTable(ForumDataBase forumDataBase, String tableName) {
+	public AuthorsTable(ForumDataBase forumDataBase, String tableName) {
 		super();
 		this.forumDataBase = forumDataBase;
 		this.tableName = tableName;
@@ -42,7 +44,7 @@ public class AuthorTable {
 	public void insertAuthor(Author author){
 		if(this.contains(author.getAuthorId()) == null){
 			String insert = "INSERT INTO " + tableName 
-				+" (author_id, login) "
+				+" (" + this.AUTHOR_ID + ", " + this.LOGIN + ") "
 				+ " VALUES (?, ?)";
 			PreparedStatement stmt;
 			try{
@@ -79,7 +81,7 @@ public class AuthorTable {
 	 */
 	public Set<Author> getAuthorsByLogin(String login){
 		String select = "SELECT * FROM " + tableName + 
-				"WHERE login = " + login;
+				"WHERE " + this.LOGIN + " = " + login;
 		Statement stmt;
 		ResultSet rs;
 		LinkedHashSet<Author> listAuthors = new LinkedHashSet<>();
@@ -87,7 +89,7 @@ public class AuthorTable {
 			stmt = forumDataBase.getConnection().createStatement();
 			rs = stmt.executeQuery(select);
 			while(rs.next()){
-				listAuthors.add(new Author(rs.getString("login"), rs.getInt("author_id")));
+				listAuthors.add(new Author(rs.getString(this.LOGIN), rs.getInt(this.AUTHOR_ID)));
 			}
 			rs.close();
 			stmt.close();
@@ -105,13 +107,13 @@ public class AuthorTable {
 	 */
 	public Author contains(int id){
 		String sql = "SELECT * FROM " + tableName + 
-				" WHERE author_id = " + id;
+				" WHERE " + this.AUTHOR_ID + " = " + id;
 		Author author = null;
 		try{
 			Statement stmt = forumDataBase.getConnection().createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			if(rs.next()){
-				author = new Author(rs.getString("login"), rs.getInt("author_id"));
+				author = new Author(rs.getString(this.LOGIN), rs.getInt(this.AUTHOR_ID));
 			}
 			rs.close();
 			stmt.close();

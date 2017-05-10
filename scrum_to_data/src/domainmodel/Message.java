@@ -19,15 +19,15 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 	private static final long serialVersionUID = 1173414698663652202L;
 	private String messageDate;
 	private int topicId;
-	private String msg;
+	private String messageText;
 	private int authorId;
-	private int msgId;
+	private int messageId;
 	
 	public Message(String messageDate, String msg, int topicId, int authorId) {
 		super();
 		this.messageDate = messageDate;
 		this.topicId = topicId;
-		this.msg = msg;
+		this.messageText = msg;
 		this.authorId = authorId;
 	}
 	
@@ -35,19 +35,19 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 		super();
 		this.messageDate = messageDate;
 		this.topicId = topicId;
-		this.msg = msg;
+		this.messageText = msg;
 		this.authorId = authorId;
-		this.msgId = msgId;
+		this.messageId = msgId;
 	}
 	
 	
 	public int getMsgId() {
-		return msgId;
+		return messageId;
 	}
 
 
 	public void setMsgId(int msgId) {
-		this.msgId = msgId;
+		this.messageId = msgId;
 	}
 
 
@@ -82,12 +82,12 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 
 
 	public String getMsg() {
-		return msg;
+		return messageText;
 	}
 
 
 	public void setMsg(String msg) {
-		this.msg = msg;
+		this.messageText = msg;
 	}
 	
 	/**
@@ -108,10 +108,10 @@ public class Message implements Serializable, java.lang.Comparable<Message>{
 	public String toString(){
 		return "-------------------" + 
 				"\nDate Message : " + messageDate +
-				"\nID msg : " + msgId +
+				"\nID msg : " + messageId +
 				"\nID Post : " + topicId +
 				"\nID Author : " + authorId + 
-				"\nMessage : " + msg + "\n" + 
+				"\nMessage : " + messageText + "\n" + 
 				"-------------------";
 	}
 

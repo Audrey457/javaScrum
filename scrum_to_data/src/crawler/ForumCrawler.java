@@ -12,8 +12,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import databasemodel.MessageTable;
-import databasemodel.TopicTable;
+import databasemodel.MessagesTable;
+import databasemodel.TopicsTable;
 import domainmodel.Author;
 import domainmodel.Message;
 import domainmodel.Topic;
@@ -99,9 +99,9 @@ public class ForumCrawler {
 	 * and you want to update it.
 	 * Browse only the necessary pages of a forum, and get all the needed data
 	 * @param topicTable an instance of TopicTable, the table to update
-	 * @see TopicTable
+	 * @see TopicsTable
 	 */
-	public void browsePagesToUpdate(TopicTable topicTable, MessageTable messageTable){
+	public void browsePagesToUpdate(TopicsTable topicTable, MessagesTable messageTable){
 		String nextPageUrl = this.getNextPageUrl();
 		boolean goToNextPage = this.updateTopicTable(topicTable, messageTable);
 		logger.info("Page : " + this.pageUrl + " visited");
@@ -167,7 +167,7 @@ public class ForumCrawler {
 	 * @return true when the last topic in a page needed to be updated (if it's a new topic, or if the topic already 
 	 * exists in the database, but has one more recent message at least), false otherwise
 	 */
-	private boolean updateTopicTable(TopicTable topicTable, MessageTable messageTable){
+	private boolean updateTopicTable(TopicsTable topicTable, MessagesTable messageTable){
 		Elements topicsOnPage = getTopicsElements();
 		TopicElement topicElement;
 		boolean goToNextTopic = true;
@@ -179,7 +179,7 @@ public class ForumCrawler {
 		return goToNextTopic;
 	}
 	
-	private boolean updateTopicStrategy(TopicElement topicElement, TopicTable topicTable, MessageTable messageTable){
+	private boolean updateTopicStrategy(TopicElement topicElement, TopicsTable topicTable, MessagesTable messageTable){
 		String topicUrl;
 		Topic topic;
 		int topicId;
@@ -195,8 +195,8 @@ public class ForumCrawler {
 				if (topicTable.getNbReplies(topic) != nbReplies) {
 					topicTable.updateNbReplies(topicId, nbReplies);
 				}
-				logger.info("Topic num: " + topicId + " is in database");
 				goToNextTopic = this.messagesList.addAll(topicCrawler.updateAnExistingTopic(messageTable));
+				logger.info("Topic num: " + topicId + " is in database. Need an update: " + goToNextTopic);
 				this.authorsList.addAll(this.topicCrawler.getAuthorsList());
 			} else {
 				logger.info("Topic num: " + topicId + " is not in database");

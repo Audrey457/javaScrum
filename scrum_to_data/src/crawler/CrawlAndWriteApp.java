@@ -10,12 +10,12 @@ import domainmodel.Message;
 import domainmodel.Topic;
 import sometools.IOSerialTools;
 
-public class CrawlerApp {
+public class CrawlAndWriteApp {
 
 	private ForumDataBase forumDataBase = null;
 	private ForumCrawler forumCrawler;
 
-	public CrawlerApp(ForumDataBase forumDataBase, String forumUrl) {
+	public CrawlAndWriteApp(ForumDataBase forumDataBase, String forumUrl) {
 		this.forumDataBase = forumDataBase;
 		this.forumCrawler = new ForumCrawler(forumUrl);
 
@@ -47,6 +47,10 @@ public class CrawlerApp {
 			this.forumDataBase.closeDB();
 		}
 	}
+	
+	public void crawlAndRewrite(){
+		
+	}
 
 	public void basicUpdate() {
 		if (this.forumDataBase != null) {
@@ -67,7 +71,7 @@ public class CrawlerApp {
 	}
 
 	public static void main(String[] args) {
-		CrawlerApp crawlerApp = new CrawlerApp(
+		CrawlAndWriteApp crawlerApp = new CrawlAndWriteApp(
 				new ForumDataBase(
 						"jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", 
 						"root", ""),
