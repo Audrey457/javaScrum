@@ -16,9 +16,8 @@ import domainmodel.Author;
  * @author Audrey Loriette
  *
  */
-public class AuthorsTable {
-	private ForumDataBase forumDataBase;
-	private String tableName;
+public class AuthorsTable extends AbstractTable{
+	
 	private final Logger logger = Logger.getLogger(AuthorsTable.class);
 	private final String AUTHOR_ID = "authorId";
 	private final String LOGIN = "login";
@@ -31,9 +30,7 @@ public class AuthorsTable {
 	 * @see ForumDataBase
 	 */
 	public AuthorsTable(ForumDataBase forumDataBase, String tableName) {
-		super();
-		this.forumDataBase = forumDataBase;
-		this.tableName = tableName;
+		super(forumDataBase, tableName);
 	}
 	
 	/**

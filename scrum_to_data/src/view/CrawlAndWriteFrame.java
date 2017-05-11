@@ -6,9 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import controlers.CrawlAndWriteControler;
 import crawler.CrawlAndWriteApp;
 import databasemodel.ForumDataBase;
 
@@ -18,13 +20,15 @@ public class CrawlAndWriteFrame extends JFrame {
 	private Dimension buttonSize;
 	private CrawlAndWriteApp crawlerApp;
 	private GridLayout containerLayout;
+	private UserInformationView userInformationView;
 	
 	public CrawlAndWriteFrame(){
 		super();
 		setTitle("Basic crawl and database management");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.initialize();
-		this.position();		
+		this.position();
+		this.setEnabledButtons();
 	}
 	
 	private void initialize(){
@@ -35,8 +39,9 @@ public class CrawlAndWriteFrame extends JFrame {
 		rewrite = new JButton("Crawl Scrum forum and rewrite the database");
 		buttonSize = rewrite.getPreferredSize();
 		crawlerApp = new CrawlAndWriteApp(new ForumDataBase(
-						"jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", 
+						"jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", 
 						"root", ""), "https://www.scrum.org/forum/scrum-forum");
+		userInformationView = new UserInformationView(this, "Please wait");
 		
 	}
 	
@@ -49,6 +54,13 @@ public class CrawlAndWriteFrame extends JFrame {
 		this.container.add(this.update);
 		this.container.add(this.rewrite);
 		this.getContentPane().add(this.container);
+	}
+	
+	private void setEnabledButtons(){
+		boolean dataBaseEmpty = CrawlAndWriteControler.dataBaseEmpty(this.crawlerApp.getForumDataBase());
+		this.create.setEnabled(dataBaseEmpty);
+		this.update.setEnabled(!dataBaseEmpty);
+		this.rewrite.setEnabled(!dataBaseEmpty);
 	}
 	
 	private void addToolTips(){
@@ -73,8 +85,11 @@ public class CrawlAndWriteFrame extends JFrame {
 		this.create.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//need to control
+				userInformationView.showInterface();
+				userInformationView.appIsProcessing();
 				crawlerApp.bddFirstBuild();	
+				userInformationView.endOfProcess();
+				setEnabledButtons();
 			}
 		});
 		
@@ -83,7 +98,10 @@ public class CrawlAndWriteFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//need to control
+				userInformationView.showInterface();
+				userInformationView.appIsProcessing();
 				crawlerApp.basicUpdate();
+				userInformationView.endOfProcess();
 			}
 		});
 		
@@ -91,8 +109,11 @@ public class CrawlAndWriteFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Tneed to control and to write the method :)
+				// need to control
+				userInformationView.showInterface();
+				userInformationView.appIsProcessing();
 				crawlerApp.crawlAndRewrite();
+				userInformationView.endOfProcess();
 			}
 		});
 	}

@@ -78,9 +78,4 @@ public class Author implements Serializable{
 		}
 		return true;
 	}
-	
-	
-	
-	
-	
 }

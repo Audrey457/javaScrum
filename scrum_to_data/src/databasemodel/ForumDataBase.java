@@ -97,6 +97,12 @@ public class ForumDataBase {
 		this.authorTable.insertAuthorsList(authorsList);
 		this.messageTable.insertAll(messagesList);
 	}
+	
+	public void deleteAllLinesInAllTables(){
+		this.messageTable.deleteAllLines();
+		this.topicTable.deleteAllLines();
+		this.authorTable.deleteAllLines();
+	}
 
 	/**
 	 * @return the topicTable
@@ -117,5 +123,15 @@ public class ForumDataBase {
 	 */
 	public AuthorsTable getAuthorTable() {
 		return authorTable;
+	}
+	
+	/**
+	 * @return true if all the tables in the forum database are empty, 
+	 * false otherwise
+	 */
+	public boolean isEmpty(){
+		return this.topicTable.isEmpty() &&
+				this.messageTable.isEmpty() &&
+				this.authorTable.isEmpty();
 	}
 }

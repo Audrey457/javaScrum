@@ -20,6 +20,10 @@ public class CrawlAndWriteApp {
 		this.forumCrawler = new ForumCrawler(forumUrl);
 
 	}
+	
+	public ForumDataBase getForumDataBase(){
+		return this.forumDataBase;
+	}
 
 	public void bddFirstBuild() {
 		this.forumCrawler.browseAllPages();
@@ -49,7 +53,12 @@ public class CrawlAndWriteApp {
 	}
 	
 	public void crawlAndRewrite(){
-		
+		if (this.forumDataBase != null) {
+			this.forumDataBase.openDB();
+			this.forumDataBase.deleteAllLinesInAllTables();
+			this.forumDataBase.closeDB();
+		}
+		bddFirstBuild();
 	}
 
 	public void basicUpdate() {
@@ -68,15 +77,6 @@ public class CrawlAndWriteApp {
 			this.forumDataBase.closeDB();
 		}
 		
-	}
-
-	public static void main(String[] args) {
-		CrawlAndWriteApp crawlerApp = new CrawlAndWriteApp(
-				new ForumDataBase(
-						"jdbc:mysql://localhost/base_de_test?autoReconnect=true&useSSL=false", 
-						"root", ""),
-				"https://www.scrum.org/forum/scrum-forum");
-		crawlerApp.basicUpdate();
 	}
 
 }

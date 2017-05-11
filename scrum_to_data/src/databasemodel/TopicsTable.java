@@ -14,10 +14,8 @@ import domainmodel.Topic;
  * The representation of a mysql table, containing the topics
  * @author Audrey Loriette
  */
-public class TopicsTable {
-	ForumDataBase sdb;
-	String tableName;
-	private final Logger logger = Logger.getLogger(TopicsTable.class);
+public class TopicsTable extends AbstractTable {
+	
 	private final String ID = "id";
 	private final String TITLE = "title";
 	private final String URL = "url";
@@ -25,13 +23,12 @@ public class TopicsTable {
 	
 	/**
 	 * Constructor
-	 * @param sdb an instance of ScrumDataBase
+	 * @param forumDataBase an instance of ScrumDataBase
 	 * @param tableName an instance of String
 	 * @see ForumDataBase
 	 */
-	public TopicsTable(ForumDataBase sdb, String tableName){
-		this.sdb = sdb;
-		this.tableName = tableName;
+	public TopicsTable(ForumDataBase forumDataBase, String tableName){
+		super(forumDataBase, tableName);
 	}
 	
 	/**
@@ -44,7 +41,7 @@ public class TopicsTable {
 				+ " VALUES (?, ?, ?, ?)";
 		PreparedStatement ps;
 		try{
-			ps = sdb.getConnection().prepareStatement(insert);
+			ps = forumDataBase.getConnection().prepareStatement(insert);
 			ps.setString(1,  topic.getTitle());
 			ps.setString(2, topic.getUrl());
 			ps.setInt(3, topic.getId());
@@ -83,7 +80,7 @@ public class TopicsTable {
 		ResultSet rs;
 		boolean exist = false;
 		try{
-			stmt = sdb.getConnection().prepareStatement(test);
+			stmt = forumDataBase.getConnection().prepareStatement(test);
 			stmt.setInt(1, topic.getId());
 			rs = stmt.executeQuery();
 			exist = rs.next();
@@ -105,7 +102,7 @@ public class TopicsTable {
 		ResultSet rs;
 		int nbReplies = -1;
 		try{
-			stmt = sdb.getConnection().createStatement();
+			stmt = forumDataBase.getConnection().createStatement();
 			rs = stmt.executeQuery(sql);
 			rs.next();
 			nbReplies = rs.getInt(1);
@@ -129,7 +126,7 @@ public class TopicsTable {
 				" WHERE " + this.ID + " = " + topicId;
 		Statement stmt = null;
 		try{
-			stmt = sdb.getConnection().createStatement();
+			stmt = forumDataBase.getConnection().createStatement();
 			stmt.executeUpdate(sql);
 			stmt.close();
 		}catch(SQLException e){

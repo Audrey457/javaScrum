@@ -9,7 +9,7 @@ public class ViewLauncher {
 		CrawlAndWriteFrame frame = new CrawlAndWriteFrame();
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				frame.createAndShowGUI();;
+				frame.createAndShowGUI();
 			}
 		});
 	}

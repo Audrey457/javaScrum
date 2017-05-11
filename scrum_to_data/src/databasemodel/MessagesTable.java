@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
 
 import domainmodel.Message;
 
@@ -16,10 +17,7 @@ import domainmodel.Message;
  * @author Audrey Loriette
  *
  */
-public class MessagesTable {
-	private ForumDataBase sdb;
-	private String tableName;
-	private final Logger logger = Logger.getLogger(MessagesTable.class);
+public class MessagesTable extends AbstractTable{
 	private String MESSAGE_DATE =  "messageDate";
 	private String TOPIC_ID = "topicId";
 	private String MESSAGE_TEXT = "messageText";
@@ -32,9 +30,8 @@ public class MessagesTable {
 	 * @param sdb, an instance of ScrumDataBase
 	 * @param tableName, an instance of String
 	 */
-	public MessagesTable(ForumDataBase sdb, String tableName){
-		this.sdb = sdb;
-		this.tableName = tableName;
+	public MessagesTable(ForumDataBase forumDataBase, String tableName){
+		super(forumDataBase, tableName);
 	}
 	
 	/**
@@ -44,7 +41,7 @@ public class MessagesTable {
 	 * @see Message
 	 */
 	public void insertMessage(Message message){
-		String insert = "INSERT INTO " + tableName 
+		String insert = "INSERT INTO " + this.tableName 
 				+" (" + this.MESSAGE_DATE + ", " + 
 				this.MESSAGE_TEXT + ", " + 
 				this.TOPIC_ID + ", " + 
@@ -52,7 +49,7 @@ public class MessagesTable {
 				+ " VALUES (?, ?, ?, ?)";
 		PreparedStatement ps;
 		try{
-			ps = sdb.getConnection().prepareStatement(insert);
+			ps = forumDataBase.getConnection().prepareStatement(insert);
 			ps.setString(1,  message.getMessageDate());
 			ps.setString(2, message.getMsg());
 			ps.setInt(3, message.getTopicId());
@@ -82,6 +79,23 @@ public class MessagesTable {
 	}
 	
 	/**
+	 * To delete all lines in the MessagesTable
+	 */
+	public void deleteMessages(){
+		String sql = "DELETE FROM " + this.tableName + 
+				" WHERE 1";
+		Statement stmt;
+		try{
+			stmt = forumDataBase.getConnection().createStatement();
+			stmt.executeUpdate(sql);
+			stmt.close();
+			
+		} catch(SQLException e){
+			logger.fatal(e + "\n" + "Messages not deleted.");
+		}
+	}
+	
+	/**
 	 * Return the date of the latest message for the given topic
 	 * @param topicId an integer, the topic id for which you want to search the last message date
 	 * @return a String
@@ -96,7 +110,7 @@ public class MessagesTable {
 		ResultSet rs;
 		
 		try{
-			stmt = sdb.getConnection().createStatement();
+			stmt = forumDataBase.getConnection().createStatement();
 			rs = stmt.executeQuery(sql);
 			if(rs.next()){
 				date = rs.getString(1);;
@@ -122,7 +136,7 @@ public class MessagesTable {
 		ArrayList<Message> messagesList = new ArrayList<>();
 		
 		try{
-			stmt = sdb.getConnection().createStatement();
+			stmt = forumDataBase.getConnection().createStatement();
 			rs = stmt.executeQuery(sql);
 			while(rs.next()){
 				messagesList.add(new Message(rs.getString(this.MESSAGE_DATE), 

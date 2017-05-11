@@ -36,7 +36,7 @@ public class TopicCrawler {
 		this.initialMessageCssSelector = ".forum-node-topic";
 		this.replyMessagesCssSelector = ".forum-node-container > .forum-node-reply";
 		try{
-			this.topicPage = Jsoup.connect(url).get();
+			this.topicPage = Jsoup.connect(url).timeout(600000).followRedirects(true).get();
 		}catch(IOException e){
 			logger.fatal(e + "\nCan not connect to: " + url);
 		}

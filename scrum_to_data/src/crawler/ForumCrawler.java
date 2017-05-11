@@ -47,7 +47,7 @@ public class ForumCrawler {
 		this.topicElementsCssSelector = ".forum-list-view-item";
 		this.topicsUrlCssSelector = ".forum-list-item-title .forum__title > div > a";
 		try{
-			this.forumPage = Jsoup.connect(pageUrl).get();
+			this.forumPage = Jsoup.connect(pageUrl).timeout(600000).followRedirects(true).get();
 		}catch(IOException e){
 			logger.error(e);
 		}
