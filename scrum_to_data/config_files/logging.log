@@ -15581,3 +15581,18 @@ Can not test if the table is empty
 2017-05-11 15:56:27 INFO  ForumDataBase:65 - Connected to database
 2017-05-11 15:56:27 INFO  MessagesTable:59 - Message from: 2017-05-11 13:26:00.0 topic id: 8538 inserted
 2017-05-11 15:56:27 INFO  ForumDataBase:86 - Database connection closed
+2017-05-11 16:50:28 FATAL ForumDataBase:63 - com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+2017-05-11 16:50:28 INFO  ForumDataBase:65 - Connected to database
+2017-05-11 17:12:23 FATAL ForumDataBase:63 - com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+2017-05-11 17:12:23 INFO  ForumDataBase:65 - Connected to database
+2017-05-11 17:13:42 FATAL ForumDataBase:63 - com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+2017-05-11 17:13:42 INFO  ForumDataBase:65 - Connected to database
+2017-05-11 17:19:31 FATAL ForumDataBase:63 - com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+2017-05-11 17:19:31 INFO  ForumDataBase:65 - Connected to database
+2017-05-11 17:20:07 FATAL ForumDataBase:63 - com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+2017-05-11 17:20:07 INFO  ForumDataBase:65 - Connected to database
+2017-05-11 17:22:37 FATAL ForumDataBase:63 - com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+2017-05-11 17:22:37 INFO  ForumDataBase:65 - Connected to database
+2017-05-11 17:22:37 INFO  ForumDataBase:86 - Database connection closed
+2017-05-11 17:27:19 FATAL ForumDataBase:63 - com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+2017-05-11 17:27:19 INFO  ForumDataBase:65 - Connected to database

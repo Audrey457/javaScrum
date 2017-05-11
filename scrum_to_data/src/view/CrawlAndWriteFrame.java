@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import controlers.CrawlAndWriteControler;
@@ -21,14 +22,13 @@ public class CrawlAndWriteFrame extends JFrame {
 	private CrawlAndWriteApp crawlerApp;
 	private GridLayout containerLayout;
 	private UserInformationView userInformationView;
+	private CrawlAndWriteControler controler;
 	
 	public CrawlAndWriteFrame(){
 		super();
 		setTitle("Basic crawl and database management");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.initialize();
-		this.position();
-		this.setEnabledButtons();
 	}
 	
 	private void initialize(){
@@ -42,6 +42,7 @@ public class CrawlAndWriteFrame extends JFrame {
 						"jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", 
 						"root", ""), "https://www.scrum.org/forum/scrum-forum");
 		userInformationView = new UserInformationView(this, "Please wait");
+		controler = new CrawlAndWriteControler(this.crawlerApp);
 		
 	}
 	
@@ -57,7 +58,7 @@ public class CrawlAndWriteFrame extends JFrame {
 	}
 	
 	private void setEnabledButtons(){
-		boolean dataBaseEmpty = CrawlAndWriteControler.dataBaseEmpty(this.crawlerApp.getForumDataBase());
+		boolean dataBaseEmpty = this.controler.dataBaseEmpty();
 		this.create.setEnabled(dataBaseEmpty);
 		this.update.setEnabled(!dataBaseEmpty);
 		this.rewrite.setEnabled(!dataBaseEmpty);
@@ -70,14 +71,22 @@ public class CrawlAndWriteFrame extends JFrame {
 	}
 	
 	public void createAndShowGUI(){
-		this.position();
-		this.addToolTips();
-		this.addListeners();
+		if(!this.controler.noDatabase()){
+			this.setEnabledButtons();
+			this.position();
+			this.addToolTips();
+			this.addListeners();
 		
-		//the 3rd next lines must remain the last instructions of the createAndShowGUI method
-		this.pack();
-		this.setLocationRelativeTo(null);
-		this.setVisible(true);
+			//the 3rd next lines must remain the last instructions of the createAndShowGUI method
+			this.pack();
+			this.setLocationRelativeTo(null);
+			this.setVisible(true);
+		}else{
+			JOptionPane.showMessageDialog(null, 
+					"Can not connect to the database. Many possibilities, including you have not already created it" + 
+			", your server is off, the name of your database is wrong... Please read README.txt",
+			"Database connection failed", JOptionPane.ERROR_MESSAGE);
+		}
 		
 	}
 	
