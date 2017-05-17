@@ -4,9 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
 import java.util.List;
-
-import org.apache.log4j.Logger;
+import java.util.Set;
 
 import domainmodel.Topic;
 
@@ -132,5 +132,32 @@ public class TopicsTable extends AbstractTable {
 		}catch(SQLException e){
 			logger.error(e + "\n updateNbReplies failed");
 		}
+	}
+	
+	/**
+	 * @return an instance of Set/<Topic/>
+	 */
+	public Set<Topic> getAllTopics(){
+		String sql = "SELECT * FROM " + tableName;
+		Statement stmt = null;
+		ResultSet rs;
+		HashSet<Topic> set = new HashSet<>();
+		
+		try{
+			stmt = forumDataBase.getConnection().createStatement();
+			rs = stmt.executeQuery(sql);
+			while(rs.next()){
+				set.add(new Topic(rs.getInt(this.ID),
+						rs.getString(this.TITLE), 
+						rs.getString(this.URL), 
+						rs.getInt(this.NB_REPLIES)));
+			}
+			rs.close();
+			stmt.close();
+		}catch(SQLException e){
+			logger.error(e);
+		}
+		
+		return set;
 	}
 }

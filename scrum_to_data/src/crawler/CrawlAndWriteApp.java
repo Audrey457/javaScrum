@@ -2,11 +2,16 @@ package crawler;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
+import analyser.TagCalculator;
 import databasemodel.ForumDataBase;
+import databasemodel.TagsTable;
 import domainmodel.Author;
 import domainmodel.Message;
+import domainmodel.Tag;
 import domainmodel.Topic;
 import sometools.IOSerialTools;
 
@@ -24,15 +29,25 @@ public class CrawlAndWriteApp {
 	public ForumDataBase getForumDataBase(){
 		return this.forumDataBase;
 	}
+	
+	public ForumCrawler getForumCrawler(){
+		return this.forumCrawler;
+	}
 
 	public void bddFirstBuild() {
+		HashSet<Tag> tagSet = new HashSet<>();
 		this.forumCrawler.browseAllPages();
 		saveAllAsObjects();
 
 		if (this.forumDataBase != null) {
 			this.forumDataBase.openDB();
-			this.forumDataBase.insertInAllTables(this.forumCrawler.getTopicsList(), this.forumCrawler.getMessagesList(),
+			this.forumDataBase.insertInTopicAuthorAndMessageTables(this.forumCrawler.getTopicsList(), this.forumCrawler.getMessagesList(),
 					this.forumCrawler.getAuthorsList());
+			for(Topic topic: this.forumCrawler.getTopicsList()){
+				Set<String> temp = TagCalculator.calculTag(topic);
+				tagSet.add(new Tag(topic.getId(), temp));
+			}
+			this.forumDataBase.getTagsTable().insertAll(tagSet, TagsTable.REPLACE);
 			this.forumDataBase.closeDB();
 		}
 	}
@@ -46,7 +61,7 @@ public class CrawlAndWriteApp {
 	public void writeObjectsToDatabase(File ficMessages, File ficTopics, File ficAuthors) {
 		if (this.forumDataBase != null) {
 			this.forumDataBase.openDB();
-			this.forumDataBase.insertInAllTables(IOSerialTools.readTopicsObject(ficTopics),
+			this.forumDataBase.insertInTopicAuthorAndMessageTables(IOSerialTools.readTopicsObject(ficTopics),
 					IOSerialTools.readMessagesObject(ficMessages), IOSerialTools.readAuthorsObject(ficAuthors));
 			this.forumDataBase.closeDB();
 		}
@@ -55,7 +70,8 @@ public class CrawlAndWriteApp {
 	public void crawlAndRewrite(){
 		if (this.forumDataBase != null) {
 			this.forumDataBase.openDB();
-			this.forumDataBase.deleteAllLinesInAllTables();
+			this.forumDataBase.deleteAllLinesInTopicAuthorAndMessageTables();
+			this.forumDataBase.getTagsTable().deleteAllLines();
 			this.forumDataBase.closeDB();
 		}
 		bddFirstBuild();
@@ -72,7 +88,7 @@ public class CrawlAndWriteApp {
 		
 		if (this.forumDataBase != null) {
 			this.forumDataBase.openDB();
-			this.forumDataBase.insertInAllTables(this.forumCrawler.getTopicsList(), this.forumCrawler.getMessagesList(),
+			this.forumDataBase.insertInTopicAuthorAndMessageTables(this.forumCrawler.getTopicsList(), this.forumCrawler.getMessagesList(),
 					this.forumCrawler.getAuthorsList());
 			this.forumDataBase.closeDB();
 		}

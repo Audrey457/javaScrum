@@ -1,0 +1,4 @@
+CREATE TABLE keywords (
+    `keyword` VARCHAR(1000) CHARACTER SET utf8 PRIMARY KEY,
+)
+ENGINE=InnoDB;

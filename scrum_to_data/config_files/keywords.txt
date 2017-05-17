@@ -1,0 +1,14 @@
+scrum team
+product owner
+scrum master
+development team
+events
+sprint
+sprint planning
+daily scrum
+sprint review
+sprint retrospective
+artifacts
+product backlog
+sprint backlog
+increment

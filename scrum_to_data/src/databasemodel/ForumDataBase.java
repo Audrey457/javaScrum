@@ -3,14 +3,18 @@ package databasemodel;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import analyser.TagCalculator;
 import domainmodel.Author;
 import domainmodel.Message;
+import domainmodel.Tag;
 import domainmodel.Topic;
+import sometools.SetTranslationTools;
 
 /**
  * The Java representation of a "scrum database" with the URL, login and passwd user
@@ -31,6 +35,8 @@ public class ForumDataBase {
 	private TopicsTable topicTable;
 	private MessagesTable messageTable;
 	private AuthorsTable authorTable;
+	private TagsTable tagsTable;
+	private KeyWordsTable keyWordsTable;
 	private final Logger logger = Logger.getLogger(ForumDataBase.class);
 	
 	/**
@@ -49,6 +55,8 @@ public class ForumDataBase {
 		this.topicTable = new TopicsTable(this, "topics");
 		this.messageTable = new MessagesTable(this, "messages");
 		this.authorTable = new AuthorsTable(this, "authors");
+		this.tagsTable =  new TagsTable(this, "tags");
+		this.keyWordsTable = new KeyWordsTable(this, "keywords");
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -56,6 +64,20 @@ public class ForumDataBase {
 		}
 	}
 	
+	/**
+	 * @return the tagsTable
+	 */
+	public TagsTable getTagsTable() {
+		return tagsTable;
+	}
+
+	/**
+	 * @return the keyWordsTable
+	 */
+	public KeyWordsTable getKeyWordsTable() {
+		return keyWordsTable;
+	}
+
 	public void openDB(){
 		try {
 			connect = DriverManager.getConnection(url, login, passwd);
@@ -92,13 +114,13 @@ public class ForumDataBase {
 	 * @param messagesList an instance of ArrayList/<Message/>
 	 * @param authorsList an instance of LinkedHashSet/<Author/>
 	 */
-	public void insertInAllTables(List<Topic> topicsList, List<Message> messagesList, Set<Author> authorsList){
+	public void insertInTopicAuthorAndMessageTables(List<Topic> topicsList, List<Message> messagesList, Set<Author> authorsList){
 		this.topicTable.insertAll(topicsList);
 		this.authorTable.insertAuthorsList(authorsList);
 		this.messageTable.insertAll(messagesList);
 	}
 	
-	public void deleteAllLinesInAllTables(){
+	public void deleteAllLinesInTopicAuthorAndMessageTables(){
 		this.messageTable.deleteAllLines();
 		this.topicTable.deleteAllLines();
 		this.authorTable.deleteAllLines();
@@ -134,4 +156,20 @@ public class ForumDataBase {
 				this.messageTable.isEmpty() &&
 				this.authorTable.isEmpty();
 	}
+	
+//	public static void main(String [] args){
+//		ForumDataBase fdb = new ForumDataBase(
+//				"jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", 
+//				"root", "");
+//		HashSet<Topic> topicSet = new HashSet<>();
+//		fdb.openDB();
+//		topicSet = (HashSet<Topic>) fdb.getTopicTable().getAllTopics();
+//		HashSet<Tag> tagSet = new HashSet<>();
+//		for(Topic topic: topicSet){
+//			Set<String> temp = TagCalculator.calculTag(topic);
+//			tagSet.add(new Tag(topic.getId(), temp));
+//		}
+//		fdb.getTagsTable().insertAll(tagSet, TagsTable.REPLACE);
+//		fdb.closeDB();
+//	}
 }

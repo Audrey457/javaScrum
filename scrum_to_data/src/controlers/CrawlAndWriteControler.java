@@ -38,4 +38,8 @@ public class CrawlAndWriteControler {
 		
 	}
 	
+	public boolean canAccessForum(){
+		return this.crawlerApp.getForumCrawler().canAccessForum();
+	}
+	
 }

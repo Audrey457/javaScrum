@@ -27,8 +27,7 @@ public class CrawlAndWriteFrame extends JFrame {
 	public CrawlAndWriteFrame(){
 		super();
 		setTitle("Basic crawl and database management");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.initialize();
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 	
 	private void initialize(){
@@ -71,7 +70,18 @@ public class CrawlAndWriteFrame extends JFrame {
 	}
 	
 	public void createAndShowGUI(){
-		if(!this.controler.noDatabase()){
+		this.initialize();
+		if(this.controler.noDatabase()){
+			JOptionPane.showMessageDialog(null, 
+					"Can not connect to the database. Many possibilities, including you have not already created it" + 
+			", your server is off, the name of your database is wrong... Please read README.txt",
+			"Database connection failed", JOptionPane.ERROR_MESSAGE);
+		}else if(!this.controler.canAccessForum()){
+			JOptionPane.showMessageDialog(null, 
+					"Can not access to the forum. Maybe you don't have access to Internet",
+			"Forum connection failed", JOptionPane.ERROR_MESSAGE);
+		}
+		else{
 			this.setEnabledButtons();
 			this.position();
 			this.addToolTips();
@@ -81,16 +91,12 @@ public class CrawlAndWriteFrame extends JFrame {
 			this.pack();
 			this.setLocationRelativeTo(null);
 			this.setVisible(true);
-		}else{
-			JOptionPane.showMessageDialog(null, 
-					"Can not connect to the database. Many possibilities, including you have not already created it" + 
-			", your server is off, the name of your database is wrong... Please read README.txt",
-			"Database connection failed", JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}
 	
 	private void addListeners(){
+		//create button
 		this.create.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -102,6 +108,7 @@ public class CrawlAndWriteFrame extends JFrame {
 			}
 		});
 		
+		//update button
 		this.update.addActionListener(new ActionListener() {
 			
 			@Override
@@ -114,6 +121,7 @@ public class CrawlAndWriteFrame extends JFrame {
 			}
 		});
 		
+		//rewrite button
 		this.rewrite.addActionListener(new ActionListener() {
 			
 			@Override

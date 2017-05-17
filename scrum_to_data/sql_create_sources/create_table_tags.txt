@@ -1,0 +1,8 @@
+CREATE TABLE tags (
+    `keyWordsList` VARCHAR(1950) CHARACTER SET utf8,
+    `topicId` INT UNSIGNED NOT NULL,
+     CONSTRAINT `fk_topicId_tagsTable`
+		FOREIGN KEY (topicId)
+		REFERENCES topics(id)
+)
+ENGINE=InnoDB;

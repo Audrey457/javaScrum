@@ -29,6 +29,7 @@ public class ForumCrawler {
 	private String topicElementsCssSelector;
 	private String topicsUrlCssSelector;
 	private final Logger logger = Logger.getLogger(ForumCrawler.class);
+	private boolean access;
 
 
 	/**
@@ -40,6 +41,7 @@ public class ForumCrawler {
 	public ForumCrawler(String pageUrl){
 		
 		this.pageUrl = pageUrl;
+		access = true;
 		this.topicsList = new ArrayList<>();
 		this.authorsList = new LinkedHashSet<>();
 		this.messagesList = new ArrayList<>();
@@ -49,8 +51,13 @@ public class ForumCrawler {
 		try{
 			this.forumPage = Jsoup.connect(pageUrl).timeout(600000).followRedirects(true).get();
 		}catch(IOException e){
-			logger.error(e);
+			access = false;
+			logger.fatal(e);
 		}
+	}
+	
+	public boolean canAccessForum(){
+		return access;
 	}
 	
 	/**

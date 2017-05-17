@@ -6,10 +6,10 @@ public class ViewLauncher {
 	final static Logger logger = Logger.getLogger(ViewLauncher.class);
 
 	public static void main(String[] args) {
-		CrawlAndWriteFrame frame = new CrawlAndWriteFrame();
+		MainFrame mainFrame = new MainFrame();
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				frame.createAndShowGUI();
+				mainFrame.createAndShowGUI();
 			}
 		});
 	}
