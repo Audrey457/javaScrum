@@ -4,6 +4,13 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -11,7 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import controlers.CrawlAndWriteControler;
+import controlers.ButtonControler;
 import crawler.CrawlAndWriteApp;
 import databasemodel.ForumDataBase;
 
@@ -22,7 +29,7 @@ public class CrawlAndWriteFrame extends JFrame {
 	private CrawlAndWriteApp crawlerApp;
 	private GridLayout containerLayout;
 	private UserInformationView userInformationView;
-	private CrawlAndWriteControler controler;
+	private ButtonControler controler;
 	
 	public CrawlAndWriteFrame(){
 		super();
@@ -40,8 +47,8 @@ public class CrawlAndWriteFrame extends JFrame {
 		crawlerApp = new CrawlAndWriteApp(new ForumDataBase(
 						"jdbc:mysql://localhost/scrumdata?autoReconnect=true&useSSL=false", 
 						"root", ""), "https://www.scrum.org/forum/scrum-forum");
-		userInformationView = new UserInformationView(this, "Please wait");
-		controler = new CrawlAndWriteControler(this.crawlerApp);
+		userInformationView = new UserInformationView(this, "Information");
+		controler = new ButtonControler(this.crawlerApp);
 		
 	}
 	
@@ -113,7 +120,6 @@ public class CrawlAndWriteFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//need to control
 				userInformationView.showInterface();
 				userInformationView.appIsProcessing();
 				crawlerApp.basicUpdate();
@@ -126,13 +132,18 @@ public class CrawlAndWriteFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// need to control
 				userInformationView.showInterface();
 				userInformationView.appIsProcessing();
 				crawlerApp.crawlAndRewrite();
 				userInformationView.endOfProcess();
 			}
 		});
+		
+		this.userInformationView.addWindowListener(new WindowClosedListener(this));
+	}
+	
+	public void closeWindow(){
+		this.dispose();
 	}
 	
 	

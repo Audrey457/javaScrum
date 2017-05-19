@@ -33,7 +33,12 @@ public class CrawlAndWriteApp {
 	public ForumCrawler getForumCrawler(){
 		return this.forumCrawler;
 	}
-
+	
+	/**
+	 * When writing the database or the first time, the tags table is also 
+	 * written but in a very raw way: the title of a new topic is inserted 
+	 * in the table, as the only keyword. This has to be improved later !  
+	 */
 	public void bddFirstBuild() {
 		HashSet<Tag> tagSet = new HashSet<>();
 		this.forumCrawler.browseAllPages();
@@ -77,7 +82,13 @@ public class CrawlAndWriteApp {
 		bddFirstBuild();
 	}
 
+	/**
+	 * When updating the database, the tags table is also updated but in a very 
+	 * raw way: the title of a new topic is inserted in the table, as the only 
+	 * keyword. This has to be improved later !  
+	 */
 	public void basicUpdate() {
+		HashSet<Tag> tagSet = new HashSet<>();
 		if (this.forumDataBase != null) {
 			this.forumDataBase.openDB();
 			this.forumCrawler.browsePagesToUpdate(this.forumDataBase.getTopicTable(),
@@ -90,6 +101,11 @@ public class CrawlAndWriteApp {
 			this.forumDataBase.openDB();
 			this.forumDataBase.insertInTopicAuthorAndMessageTables(this.forumCrawler.getTopicsList(), this.forumCrawler.getMessagesList(),
 					this.forumCrawler.getAuthorsList());
+			for(Topic topic: this.forumCrawler.getTopicsList()){
+				Set<String> temp = TagCalculator.calculTag(topic);
+				tagSet.add(new Tag(topic.getId(), temp));
+			}
+			this.forumDataBase.getTagsTable().insertAll(tagSet, TagsTable.REPLACE);
 			this.forumDataBase.closeDB();
 		}
 		
